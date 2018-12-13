@@ -188,6 +188,7 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mTextureView = view.findViewById(R.id.texture) as AutoFitTextureView
+        getViewSize(mTextureView)
     }
 
     private fun openCamera(width: Int, height: Int) {
@@ -272,34 +273,15 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
 
                 val displaySize = Point()
                 activity.windowManager.defaultDisplay.getSize(displaySize)
-                var rotatedPreviewWidth = width
-                var rotatedPreviewHeight = height
                 var maxPreviewWidth = displaySize.x
                 var maxPreviewHeight = displaySize.y
 
                 if (swappedDimensions) {
-                    rotatedPreviewWidth = height
-                    rotatedPreviewHeight = width
                     maxPreviewWidth = displaySize.y
                     maxPreviewHeight = displaySize.x
                 }
 
-                if (maxPreviewWidth > MAX_PREVIEW_WIDTH) {
-                    maxPreviewWidth = MAX_PREVIEW_WIDTH
-                }
-
-                if (maxPreviewHeight > MAX_PREVIEW_HEIGHT) {
-                    maxPreviewHeight = MAX_PREVIEW_HEIGHT
-                }
-
-                // Danger, W.R.! Attempting to use too large a preview size could  exceed the camera
-                // bus' bandwidth limitation, resulting in gorgeous previews but the storage of
-                // garbage capture data.
-                mPreviewSize = chooseOptimalSize(
-                    map.getOutputSizes(SurfaceTexture::class.java),
-                    rotatedPreviewWidth, rotatedPreviewHeight, maxPreviewWidth,
-                    maxPreviewHeight, largest
-                )
+                mPreviewSize = Size(previewHeight, previewWidth)
 
                 // We fit the aspect ratio of TextureView to the size of preview we picked.
                 val orientation = resources.configuration.orientation
@@ -331,24 +313,6 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
 
     }
 
-//    private fun getViewSize(view: View): Int {
-//        val viewTreeObserver = view.viewTreeObserver
-//        if (viewTreeObserver.isAlive) {
-//            viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-//                override fun onGlobalLayout() {
-//                    view.viewTreeObserver.removeOnGlobalLayoutListener(this)
-//                    previewWidth = view.width
-//                    previewHeight = view.height
-//
-//                    Log.d("dbg", previewWidth.toString())
-//                    Log.d("dbg", previewHeight.toString())
-//                }
-//            })
-//        }
-//
-//        return 0
-//    }
-
     private fun configureTransform(viewWidth: Int, viewHeight: Int) {
         val activity = activity
         if (null == mPreviewSize || null == activity) {
@@ -373,40 +337,6 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
             matrix.postRotate(180f, centerX, centerY)
         }
         mTextureView.setTransform(matrix)
-    }
-
-    private fun chooseOptimalSize(choices: Array<Size>, textureViewWidth: Int, textureViewHeight: Int,
-                                  maxWidth: Int, maxHeight: Int, aspectRatio: Size): Size {
-        // Collect the supported resolutions that are at least as big as the preview Surface
-        val bigEnough = ArrayList<Size>()
-        // Collect the supported resolutions that are smaller than the preview Surface
-        val notBigEnough = ArrayList<Size>()
-        val w = aspectRatio.width
-        val h = aspectRatio.height
-        for (option in choices) {
-            if (option.width <= maxWidth && option.height <= maxHeight &&
-                option.height == option.width * h / w
-            ) {
-                if (option.width >= textureViewWidth && option.height >= textureViewHeight) {
-                    bigEnough.add(option)
-                } else {
-                    notBigEnough.add(option)
-                }
-            }
-        }
-
-        // Pick the smallest of those big enough. If there is no one big enough, pick the
-        // largest of those not big enough.
-        val finSize = when {
-            bigEnough.size > 0 -> Collections.min(bigEnough,CompareSizesByArea())
-            notBigEnough.size > 0 -> Collections.max(notBigEnough, CompareSizesByArea())
-            else -> {
-                Log.e(TAG, "Couldn't find any suitable preview size")
-                choices[0]
-            }
-        }
-
-        return finSize
     }
 
     private fun getViewSize(view: View): Int {
