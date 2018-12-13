@@ -188,7 +188,6 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mTextureView = view.findViewById(R.id.texture) as AutoFitTextureView
-        getViewSize(mTextureView)
     }
 
     private fun openCamera(width: Int, height: Int) {
@@ -242,48 +241,20 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
                     CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP
                 ) ?: continue
 
-                // For still image captures, we use the largest available size.
                 val largest = Collections.max(
                     Arrays.asList(*map.getOutputSizes(ImageFormat.JPEG)),
                     CompareSizesByArea()
                 )
                 mImageReader = ImageReader.newInstance(
-                    largest.width, largest.height,
+                    largest.width,
+                    largest.height,
                     ImageFormat.JPEG, /*maxImages*/2
                 )
                 mImageReader!!.setOnImageAvailableListener(
                     mOnImageAvailableListener, mBackgroundHandler
                 )
 
-                // Find out if we need to swap dimension to get the preview size relative to sensor
-                // coordinate.
-                val displayRotation = activity.windowManager.defaultDisplay.rotation
-
-                mSensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)!!
-                var swappedDimensions = false
-                when (displayRotation) {
-                    Surface.ROTATION_0, Surface.ROTATION_180 -> if (mSensorOrientation == 90 || mSensorOrientation == 270) {
-                        swappedDimensions = true
-                    }
-                    Surface.ROTATION_90, Surface.ROTATION_270 -> if (mSensorOrientation == 0 || mSensorOrientation == 180) {
-                        swappedDimensions = true
-                    }
-                    else -> Log.e(TAG, "Display rotation is invalid: $displayRotation")
-                }
-
-                val displaySize = Point()
-                activity.windowManager.defaultDisplay.getSize(displaySize)
-                var maxPreviewWidth = displaySize.x
-                var maxPreviewHeight = displaySize.y
-
-                if (swappedDimensions) {
-                    maxPreviewWidth = displaySize.y
-                    maxPreviewHeight = displaySize.x
-                }
-
-                mPreviewSize = Size(previewHeight, previewWidth)
-
-                // We fit the aspect ratio of TextureView to the size of preview we picked.
+                mPreviewSize = Size(height, width)
                 val orientation = resources.configuration.orientation
                 if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                     mTextureView.setAspectRatio(
@@ -337,21 +308,6 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
             matrix.postRotate(180f, centerX, centerY)
         }
         mTextureView.setTransform(matrix)
-    }
-
-    private fun getViewSize(view: View): Int {
-        val viewTreeObserver = view.viewTreeObserver
-            if (viewTreeObserver.isAlive) {
-              viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-                  override fun onGlobalLayout() {
-                      view.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                      previewWidth = view.width
-                      previewHeight = view.height
-                  }
-              });
-            }
-
-        return 0
     }
 
     private fun createCameraPreviewSession() {
