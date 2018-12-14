@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "918624025578",
+    "firebase_url": "https://findit-f6d4f.firebaseio.com",
+    "project_id": "findit-f6d4f",
+    "storage_bucket": "findit-f6d4f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:918624025578:android:5b3877c05ab1b8b0",
+        "android_client_info": {
+          "package_name": "com.papayainc.findit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "918624025578-7ga5kn0g0jijrfhsolhms1kht0ap0vh8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjch368-tvsePZF81rTPT2RWlK_x9WpWI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
