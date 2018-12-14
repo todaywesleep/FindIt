@@ -22,6 +22,7 @@ import android.util.Size
 import android.util.SparseIntArray
 import android.view.*
 import com.papayainc.findit.R
+import com.papayainc.findit.processors.ImageProcessor
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -36,15 +37,17 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
         }
 
         private val ORIENTATIONS = SparseIntArray()
-        private val REQUEST_CAMERA_PERMISSION = 1
-        private val FRAGMENT_DIALOG = "dialog"
-        private val TAG = "CameraFragment"
-        private val STATE_PREVIEW = 0
-        private val STATE_WAITING_LOCK = 1
-        private val STATE_WAITING_PRECAPTURE = 2
-        private val STATE_WAITING_NON_PRECAPTURE = 3
-        private val STATE_PICTURE_TAKEN = 4
+        private const val REQUEST_CAMERA_PERMISSION = 1
+        private const val FRAGMENT_DIALOG = "dialog"
+        private const val TAG = "CameraFragment"
+        private const val STATE_PREVIEW = 0
+        private const val STATE_WAITING_LOCK = 1
+        private const val STATE_WAITING_PRECAPTURE = 2
+        private const val STATE_WAITING_NON_PRECAPTURE = 3
+        private const val STATE_PICTURE_TAKEN = 4
     }
+
+    private lateinit var imageProcessor: ImageProcessor
 
     private var mCameraId: String? = null
     private lateinit var mTextureView: AutoFitTextureView
@@ -86,13 +89,11 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
     }
 
     private val mOnImageAvailableListener = ImageReader.OnImageAvailableListener { reader ->
-        if (mFile != null) {
-            mBackgroundHandler!!.post(
-                ImageSaver(
-                    reader.acquireNextImage(),
-                    mFile!!
-                )
-            )
+        val image = reader.acquireNextImage()
+
+        if (image != null){
+            imageProcessor.setImage(image, 0)
+            image.close()
         }
     }
 
@@ -167,7 +168,6 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
         }
 
         override fun onSurfaceTextureUpdated(texture: SurfaceTexture) {}
-
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -175,6 +175,8 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
         ORIENTATIONS.append(Surface.ROTATION_90, 0)
         ORIENTATIONS.append(Surface.ROTATION_180, 270)
         ORIENTATIONS.append(Surface.ROTATION_270, 180)
+
+        imageProcessor = ImageProcessor.newInstance()
 
         return inflater.inflate(R.layout.fragment_camera2_basic, container, false)
     }
@@ -245,11 +247,10 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
                 mImageReader = ImageReader.newInstance(
                     largest.width,
                     largest.height,
-                    ImageFormat.JPEG,2
-                )
+                    ImageFormat.JPEG,2)
+
                 mImageReader!!.setOnImageAvailableListener(
-                    mOnImageAvailableListener, mBackgroundHandler
-                )
+                    mOnImageAvailableListener, mBackgroundHandler)
 
                 mPreviewSize = Size(height, width)
                 val orientation = resources.configuration.orientation
@@ -317,6 +318,7 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
             // We set up a CaptureRequest.Builder with the output Surface.
             if (mCameraDevice != null) {
                 mPreviewRequestBuilder = mCameraDevice!!.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+                mPreviewRequestBuilder!!.addTarget(mImageReader!!.surface)
                 mPreviewRequestBuilder!!.addTarget(surface)
 
                 // Here, we create a CameraCaptureSession for camera preview.
@@ -486,50 +488,48 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
     }
 
     private fun captureStillPicture() {
-        try {
-            val activity = activity
-            if (null == activity || null == mCameraDevice) {
-                return
-            }
-            // This is the CaptureRequest.Builder that we use to take a picture.
-            if (mCameraDevice != null) {
-                val captureBuilder = mCameraDevice!!.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
-                if (mImageReader != null) {
-                    captureBuilder.addTarget(mImageReader!!.surface)
-
-                    // Use the same AE and AF modes as the preview.
-                    captureBuilder.set(
-                        CaptureRequest.CONTROL_AF_MODE,
-                        CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
-                    )
-                    setAutoFlash(captureBuilder)
-
-                    // Orientation
-                    val rotation = activity.windowManager.defaultDisplay.rotation
-                    captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, getOrientation(rotation))
-
-                    val captureCallback = object : CameraCaptureSession.CaptureCallback() {
-
-                        override fun onCaptureCompleted(
-                            session: CameraCaptureSession,
-                            request: CaptureRequest,
-                            result: TotalCaptureResult
-                        ) {
-                            Log.d(TAG, mFile.toString())
-                            unlockFocus()
-                        }
-                    }
-
-                    if (mCaptureSession != null) {
-                        mCaptureSession!!.stopRepeating()
-                        mCaptureSession!!.abortCaptures()
-                        mCaptureSession!!.capture(captureBuilder.build(), captureCallback, null)
-                    }
-                }
-            }
-        } catch (e: CameraAccessException) {
-            e.printStackTrace()
-        }
+//        try {
+//            val activity = activity
+//            if (null == activity || null == mCameraDevice) {
+//                return
+//            }
+//            // This is the CaptureRequest.Builder that we use to take a picture.
+//            if (mCameraDevice != null) {
+//                val captureBuilder = mCameraDevice!!.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
+//                if (mImageReader != null) {
+//                    captureBuilder.addTarget(mImageReader!!.surface)
+//
+//                    // Use the same AE and AF modes as the preview.
+//                    captureBuilder.set(
+//                        CaptureRequest.CONTROL_AF_MODE,
+//                        CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+//                    )
+//                    setAutoFlash(captureBuilder)
+//
+//                    // Orientation
+//                    val rotation = activity.windowManager.defaultDisplay.rotation
+//                    captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, getOrientation(rotation))
+//
+//                    val captureCallback = object : CameraCaptureSession.CaptureCallback() {
+//
+//                        override fun onCaptureCompleted(
+//                            session: CameraCaptureSession,
+//                            request: CaptureRequest,
+//                            result: TotalCaptureResult) {
+//                            unlockFocus()
+//                        }
+//                    }
+//
+//                    if (mCaptureSession != null) {
+//                        mCaptureSession!!.stopRepeating()
+//                        mCaptureSession!!.abortCaptures()
+//                        mCaptureSession!!.capture(captureBuilder.build(), captureCallback, null)
+//                    }
+//                }
+//            }
+//        } catch (e: CameraAccessException) {
+//            e.printStackTrace()
+//        }
 
     }
 
