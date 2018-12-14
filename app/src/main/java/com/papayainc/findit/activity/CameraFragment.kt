@@ -18,6 +18,7 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.app.DialogFragment
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
+import android.util.DisplayMetrics
 import android.util.Log
 import android.util.Size
 import android.util.SparseIntArray
@@ -45,12 +46,7 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
         private val STATE_WAITING_PRECAPTURE = 2
         private val STATE_WAITING_NON_PRECAPTURE = 3
         private val STATE_PICTURE_TAKEN = 4
-        private val MAX_PREVIEW_WIDTH = 1920
-        private val MAX_PREVIEW_HEIGHT = 1080
     }
-
-    private var previewWidth = 0
-    private var previewHeight = 0
 
     private var mCameraId: String? = null
     private lateinit var mTextureView: AutoFitTextureView
@@ -248,7 +244,7 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
                 mImageReader = ImageReader.newInstance(
                     largest.width,
                     largest.height,
-                    ImageFormat.JPEG, /*maxImages*/2
+                    ImageFormat.JPEG,2
                 )
                 mImageReader!!.setOnImageAvailableListener(
                     mOnImageAvailableListener, mBackgroundHandler
