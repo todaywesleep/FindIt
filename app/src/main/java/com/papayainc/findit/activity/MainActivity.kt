@@ -3,6 +3,7 @@ package com.papayainc.findit.activity
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.papayainc.findit.R
+import com.papayainc.findit.view.CameraFragment
 
 
 class MainActivity : AppCompatActivity() {

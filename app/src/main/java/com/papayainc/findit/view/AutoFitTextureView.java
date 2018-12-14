@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.papayainc.findit.activity;
+package com.papayainc.findit.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
