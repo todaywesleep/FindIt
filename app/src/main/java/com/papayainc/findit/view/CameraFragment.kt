@@ -13,6 +13,7 @@ import android.media.ImageReader
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
+import android.os.Looper
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.DialogFragment
 import android.support.v4.app.Fragment
@@ -93,13 +94,22 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
     }
 
     private val mOnImageAvailableListener = ImageReader.OnImageAvailableListener { reader ->
-//        val image = reader.acquireNextImage()
-//        val buffer = image.planes[0].buffer
-//        val bytes = ByteArray(buffer.remaining())
-//        buffer.get(bytes)
-//        val myBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, null)
-//
-//        imagePreview.setImageBitmap(myBitmap)
+        val image = reader.acquireLatestImage()
+        val buffer = image.planes[0].buffer
+        val bytes = ByteArray(buffer.remaining())
+        buffer.get(bytes)
+        val imageBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, null)
+
+        val matrix = Matrix()
+        matrix.postRotate(90f)
+        val rotatedBitmap = Bitmap.createBitmap(imageBitmap, 0, 0, imageBitmap.width, imageBitmap.height, matrix, true)
+
+        Handler(Looper.getMainLooper()).post {
+            imagePreview.setImageBitmap(rotatedBitmap)
+        }
+
+        imageProcessor.lookForLabels(rotatedBitmap)
+        image.close()
     }
 
     override fun onResume() {
@@ -194,7 +204,7 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
         }
     }
 
-    private fun takePicture(){
+    private fun takePicture() {
         lockFocus()
     }
 
@@ -272,18 +282,16 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
                 ) ?: continue
 
                 val largest = Collections.max(
-                    Arrays.asList(*map.getOutputSizes(ImageFormat.YUV_420_888)),
-                    CompareSizesByArea()
-                )
+                    Arrays.asList(*map.getOutputSizes(ImageFormat.JPEG)),
+                    CompareSizesByArea())
+
                 mImageReader = ImageReader.newInstance(
                     largest.width,
                     largest.height,
-                    ImageFormat.YUV_420_888, 2
-                )
+                    ImageFormat.JPEG, 2)
 
                 mImageReader!!.setOnImageAvailableListener(
-                    mOnImageAvailableListener, mBackgroundHandler
-                )
+                    mOnImageAvailableListener, mBackgroundHandler)
 
                 mPreviewSize = Size(height, width)
                 val orientation = resources.configuration.orientation
@@ -422,7 +430,8 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
                 mState = STATE_WAITING_PRECAPTURE
                 if (mCaptureSession != null) {
                     mCaptureSession!!.capture(
-                        mPreviewRequestBuilder!!.build(), mCaptureCallback,
+                        mPreviewRequestBuilder!!.build(),
+                        mCaptureCallback,
                         mBackgroundHandler
                     )
                 }
@@ -435,7 +444,8 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
     private val mCaptureCallback = object : CameraCaptureSession.CaptureCallback() {
         private fun process(result: CaptureResult) {
             when (mState) {
-                STATE_PREVIEW -> { }// We have nothing to do when the camera preview is working normally.
+                STATE_PREVIEW -> {
+                }// We have nothing to do when the camera preview is working normally.
                 STATE_WAITING_LOCK -> {
                     val afState = result.get(CaptureResult.CONTROL_AF_STATE)
                     if (afState == null) {
@@ -485,6 +495,7 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
             request: CaptureRequest,
             result: TotalCaptureResult
         ) {
+
             process(result)
         }
     }
@@ -545,7 +556,8 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
                     val captureCallback = object : CameraCaptureSession.CaptureCallback() {
                         override fun onCaptureCompleted(
                             session: CameraCaptureSession,
-                            request: CaptureRequest, result: TotalCaptureResult) {
+                            request: CaptureRequest, result: TotalCaptureResult
+                        ) {
 
                             unlockFocus()
                         }

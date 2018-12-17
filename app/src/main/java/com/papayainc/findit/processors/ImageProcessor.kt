@@ -1,11 +1,13 @@
 package com.papayainc.findit.processors
 
+import android.graphics.Bitmap
 import android.media.Image
 import android.util.Log
 import com.google.firebase.FirebaseApp
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.label.FirebaseVisionLabelDetectorOptions
 import com.google.firebase.ml.vision.FirebaseVision
+import com.google.firebase.ml.vision.cloud.FirebaseVisionCloudDetectorOptions
 
 
 class ImageProcessor {
@@ -19,19 +21,22 @@ class ImageProcessor {
         fun getImageLabels()
     }
 
-    private val options = FirebaseVisionLabelDetectorOptions.Builder()
-        .setConfidenceThreshold(0.8f)
-        .build()!!
-    private var detector = FirebaseVision.getInstance().getVisionLabelDetector(options)
+    private val options = FirebaseVisionCloudDetectorOptions.Builder()
+        .setModelType(FirebaseVisionCloudDetectorOptions.STABLE_MODEL)
+        .setMaxResults(10)
+        .build()
+
+    private var detector = FirebaseVision.getInstance().getVisionCloudLabelDetector(options)
     private var isDetectorBusy = false
 
-    fun lookForLabels(image: Image, rotation: Int){
+    fun lookForLabels(bitmap: Bitmap){
         if (!isDetectorBusy){
             isDetectorBusy = true
-            val firebaseImage = FirebaseVisionImage.fromMediaImage(image, rotation)
+            val firebaseImage = FirebaseVisionImage.fromBitmap(bitmap)
             detector.detectInImage(firebaseImage).addOnSuccessListener { it ->
                 it.forEach {
                     Log.d("dbg", it.label)
+                    Log.d("dbg", it.confidence.toString())
                 }
                 isDetectorBusy = false
             }.addOnFailureListener {
