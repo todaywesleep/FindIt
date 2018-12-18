@@ -76,7 +76,6 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
     private var mBackgroundThread: HandlerThread? = null
     private var mBackgroundHandler: Handler? = null
     private var mImageReader: ImageReader? = null
-    private var mFile: File? = null
     private var mPreviewRequestBuilder: CaptureRequest.Builder? = null
     private var mPreviewRequest: CaptureRequest? = null
     private var mState = STATE_PREVIEW
@@ -104,7 +103,6 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
             val activity = activity
             activity?.finish()
         }
-
     }
 
     fun setCallback(callback: Callback){
@@ -430,12 +428,13 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
     }
 
     private fun setAutoFlash(requestBuilder: CaptureRequest.Builder) {
-        if (mFlashSupported) {
-            requestBuilder.set(
-                CaptureRequest.CONTROL_AE_MODE,
-                CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH
-            )
-        }
+//        TODO: Uncomment if want autoflash
+//        if (mFlashSupported) {
+//            requestBuilder.set(
+//                CaptureRequest.CONTROL_AE_MODE,
+//                CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH
+//            )
+//        }
     }
 
     private fun runPrecaptureSequence() {

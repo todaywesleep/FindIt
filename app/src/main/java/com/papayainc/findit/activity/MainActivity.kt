@@ -7,11 +7,14 @@ import android.util.Log
 import com.google.firebase.FirebaseApp
 import com.papayainc.findit.R
 import com.papayainc.findit.fragment.CameraFragment
+import com.papayainc.findit.modal.ScanResultModal
 import com.papayainc.findit.model.ScanResult
 
 class MainActivity : AppCompatActivity() {
     private lateinit var mGetImageCallback: CameraFragment.Callback
     private lateinit var mCameraFragment: CameraFragment
+
+    private lateinit var scanResultModal: ScanResultModal
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,12 +30,16 @@ class MainActivity : AppCompatActivity() {
                 .replace(R.id.container, mCameraFragment)
                 .commit()
         }
+
+        scanResultModal = ScanResultModal(this)
     }
 
     private fun generateGetImageCallback(): CameraFragment.Callback {
         return object: CameraFragment.Callback {
             override fun onGetImage(image: Bitmap, scanResult: ArrayList<ScanResult>) {
-                Log.d("dbg", scanResult.toString())
+                scanResultModal.create()
+                scanResultModal.setScanResult(image, scanResult)
+                scanResultModal.show()
             }
         }
     }

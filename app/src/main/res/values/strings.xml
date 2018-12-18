@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">FindIt</string>
+
+    <string name="modal_scan_result_dismiss">Dismiss</string>
 </resources>
