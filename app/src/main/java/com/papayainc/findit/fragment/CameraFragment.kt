@@ -1,4 +1,4 @@
-package com.papayainc.findit.view
+package com.papayainc.findit.fragment
 
 import android.Manifest
 import android.app.AlertDialog
@@ -25,15 +25,23 @@ import android.view.*
 import android.widget.Button
 import android.widget.ImageView
 import com.papayainc.findit.R
+import com.papayainc.findit.model.ScanResult
 import com.papayainc.findit.processors.ImageProcessor
+import com.papayainc.findit.view.AutoFitTextureView
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
+import kotlin.collections.ArrayList
 
-class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallback {
+class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallback, ImageProcessor.Callback {
+    override fun getImageLabels(image: Bitmap, result: ArrayList<com.papayainc.findit.model.ScanResult>) {
+        if (mCallback != null)
+            mCallback!!.onGetImage(image, result)
+    }
+
     companion object {
         fun newInstance(): CameraFragment {
             return CameraFragment()
@@ -50,7 +58,13 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
         private const val STATE_PICTURE_TAKEN = 4
     }
 
-    private lateinit var imageProcessor: ImageProcessor
+    interface Callback{
+        fun onGetImage(image: Bitmap, scanResult: ArrayList<ScanResult>)
+    }
+
+    private var mCallback: Callback? = null
+
+    private lateinit var mImageProcessor: ImageProcessor
     private lateinit var getImage: Button
     private lateinit var imagePreview: ImageView
 
@@ -93,6 +107,10 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
 
     }
 
+    fun setCallback(callback: Callback){
+        mCallback = callback
+    }
+
     private val mOnImageAvailableListener = ImageReader.OnImageAvailableListener { reader ->
         val image = reader.acquireLatestImage()
         val buffer = image.planes[0].buffer
@@ -108,7 +126,7 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
             imagePreview.setImageBitmap(rotatedBitmap)
         }
 
-        imageProcessor.lookForLabels(rotatedBitmap)
+        mImageProcessor.lookForLabels(rotatedBitmap)
         image.close()
     }
 
@@ -234,7 +252,8 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
         //Initial setup zone
         setUpCameraOutputs(width, height)
         configureTransform(width, height)
-        imageProcessor = ImageProcessor.newInstance()
+        mImageProcessor = ImageProcessor.newInstance()
+        mImageProcessor.setCallback(this)
         /////////////////////////////////////////////
 
         val activity = activity
@@ -283,7 +302,8 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
 
                 val largest = Collections.max(
                     Arrays.asList(*map.getOutputSizes(ImageFormat.JPEG)),
-                    CompareSizesByArea())
+                    CompareSizesByArea()
+                )
 
                 mImageReader = ImageReader.newInstance(
                     largest.width,
