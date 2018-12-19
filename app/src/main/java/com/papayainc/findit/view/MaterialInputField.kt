@@ -13,11 +13,11 @@ class MaterialInputField : ConstraintLayout {
     constructor(context: Context) : super(context)
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
-        mTextInputField.hint = unpackHint(attrs, context)
+        mTextInputLayout.hint = unpackHint(attrs, context)
     }
 
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
-        mTextInputField.hint = unpackHint(attrs, context)
+        mTextInputLayout.hint = unpackHint(attrs, context)
     }
 
     private val mTextInputLayout: TextInputLayout

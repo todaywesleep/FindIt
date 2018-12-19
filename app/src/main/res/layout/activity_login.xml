@@ -1,13 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<androidx.constraintlayout.widget.ConstraintLayout
 		xmlns:android="http://schemas.android.com/apk/res/android"
 		xmlns:app="http://schemas.android.com/apk/res-auto"
 		android:padding="@dimen/padding_default"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 	
-	<com.papayainc.findit.view.MaterialInputField
-			app:hint="@string/login_username"
+	<LinearLayout
+			android:id="@+id/login_fields_container"
+			android:orientation="vertical"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content"/>
-</RelativeLayout>
+			android:layout_height="wrap_content">
+		
+		<com.papayainc.findit.view.MaterialInputField
+				app:hint="@string/login_username"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"/>
+		
+		<com.papayainc.findit.view.MaterialInputField
+				android:layout_marginTop="@dimen/padding_small"
+				app:hint="@string/login_password"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"/>
+	</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
