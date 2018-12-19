@@ -9,9 +9,9 @@
 	<com.google.android.material.textfield.TextInputLayout
 			android:id="@+id/view_input_field_input_layout"
 			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
 			app:errorEnabled="true"
-			style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-			android:layout_height="wrap_content">
+			style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 		
 		<com.google.android.material.textfield.TextInputEditText
 				android:id="@+id/view_input_field_input"
@@ -19,5 +19,4 @@
 				android:layout_height="wrap_content"/>
 	
 	</com.google.android.material.textfield.TextInputLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

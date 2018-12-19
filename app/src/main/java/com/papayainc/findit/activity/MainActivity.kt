@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.FirebaseApp
 import com.papayainc.findit.R
 import com.papayainc.findit.fragment.CameraFragment
 import com.papayainc.findit.modal.ScanResultModal
@@ -21,7 +20,6 @@ class MainActivity : AppCompatActivity(), CameraFragment.Callback, View.OnClickL
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        FirebaseApp.initializeApp(this)
 
         mCameraFragment = CameraFragment.newInstance()
         mGetImageCallback = this
