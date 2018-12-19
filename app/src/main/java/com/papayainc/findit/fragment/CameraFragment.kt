@@ -13,17 +13,15 @@ import android.media.ImageReader
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
-import android.os.Looper
-import android.support.v4.app.ActivityCompat
-import android.support.v4.app.DialogFragment
-import android.support.v4.app.Fragment
-import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.util.Size
 import android.util.SparseIntArray
 import android.view.*
 import android.widget.Button
-import android.widget.ImageView
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
 import com.papayainc.findit.R
 import com.papayainc.findit.model.ScanResult
 import com.papayainc.findit.processors.ImageProcessor
@@ -269,8 +267,7 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
 
     private fun requestCameraPermission() {
         if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
-            ConfirmationDialog()
-                .show(childFragmentManager, FRAGMENT_DIALOG)
+            ConfirmationDialog().show(childFragmentManager, FRAGMENT_DIALOG)
         } else {
             requestPermissions(
                 arrayOf(Manifest.permission.CAMERA),

@@ -1,5 +1,9 @@
 <resources>
-    <string name="app_name">FindIt</string>
-
-    <string name="modal_scan_result_dismiss">Dismiss</string>
+	<string name="app_name">FindIt</string>
+	
+	<!--Modal scan result-->
+	<string name="modal_scan_result_dismiss">Dismiss</string>
+	
+	<!--Login page-->
+	<string name="login_username">User name</string>
 </resources>

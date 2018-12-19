@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:app="http://schemas.android.com/apk/res-auto"
+		android:id="@+id/view_input_field_root"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+	
+	<com.google.android.material.textfield.TextInputLayout
+			android:id="@+id/view_input_field_input_layout"
+			android:layout_width="match_parent"
+			app:errorEnabled="true"
+			style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+			android:layout_height="wrap_content">
+		
+		<com.google.android.material.textfield.TextInputEditText
+				android:id="@+id/view_input_field_input"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"/>
+	
+	</com.google.android.material.textfield.TextInputLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
