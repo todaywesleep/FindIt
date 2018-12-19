@@ -60,13 +60,16 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
 
     interface Callback{
         fun onGetImage(image: Bitmap, scanResult: ArrayList<ScanResult>)
+        fun onAutoFlashChanged(newState: Boolean)
     }
 
     private var mCallback: Callback? = null
 
     private lateinit var mImageProcessor: ImageProcessor
     private lateinit var getImage: Button
-    private lateinit var imagePreview: ImageView
+
+    //Camera states
+    private var isAutoFlashEnabled = false
 
     private var mCameraId: String? = null
     private lateinit var mTextureView: AutoFitTextureView
@@ -119,10 +122,6 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
         val matrix = Matrix()
         matrix.postRotate(90f)
         val rotatedBitmap = Bitmap.createBitmap(imageBitmap, 0, 0, imageBitmap.width, imageBitmap.height, matrix, true)
-
-        Handler(Looper.getMainLooper()).post {
-            imagePreview.setImageBitmap(rotatedBitmap)
-        }
 
         mImageProcessor.lookForLabels(rotatedBitmap)
         image.close()
@@ -207,13 +206,12 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
         ORIENTATIONS.append(Surface.ROTATION_180, 270)
         ORIENTATIONS.append(Surface.ROTATION_270, 180)
 
-        return inflater.inflate(R.layout.fragment_camera2_basic, container, false)
+        return inflater.inflate(R.layout.fragment_camera, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mTextureView = view.findViewById(R.id.texture) as AutoFitTextureView
-        imagePreview = view.findViewById(R.id.gettedImage)
         getImage = view.findViewById(R.id.getImage)
         getImage.setOnClickListener {
             takePicture()
@@ -400,7 +398,7 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
                                         CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
                                     )
                                     // Flash is automatically enabled when necessary.
-                                    setAutoFlash(mPreviewRequestBuilder!!)
+                                    setAutoFlash(mPreviewRequestBuilder!!, true)
 
                                     // Finally, we start displaying the camera preview.
                                     mPreviewRequest = mPreviewRequestBuilder!!.build()
@@ -427,14 +425,13 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
         }
     }
 
-    private fun setAutoFlash(requestBuilder: CaptureRequest.Builder) {
-//        TODO: Uncomment if want autoflash
-//        if (mFlashSupported) {
-//            requestBuilder.set(
-//                CaptureRequest.CONTROL_AE_MODE,
-//                CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH
-//            )
-//        }
+    private fun setAutoFlash(requestBuilder: CaptureRequest.Builder, isFinishStep: Boolean) {
+        if (mFlashSupported && isAutoFlashEnabled && !isFinishStep) {
+            requestBuilder.set(
+                CaptureRequest.CONTROL_AE_MODE,
+                CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH
+            )
+        }
     }
 
     private fun runPrecaptureSequence() {
@@ -527,7 +524,7 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
                     CaptureRequest.CONTROL_AF_TRIGGER,
                     CameraMetadata.CONTROL_AF_TRIGGER_CANCEL
                 )
-                setAutoFlash(mPreviewRequestBuilder!!)
+                setAutoFlash(mPreviewRequestBuilder!!, true)
                 if (mCaptureSession != null) {
                     mCaptureSession!!.capture(
                         mPreviewRequestBuilder!!.build(), mCaptureCallback,
@@ -565,7 +562,7 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
                         CaptureRequest.CONTROL_AF_MODE,
                         CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
                     )
-                    setAutoFlash(captureBuilder)
+                    setAutoFlash(captureBuilder, false)
 
                     // Orientation
                     val rotation = activity.windowManager.defaultDisplay.rotation
@@ -601,6 +598,14 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
         // For devices with orientation of 90, we simply return our mapping from ORIENTATIONS.
         // For devices with orientation of 270, we need to rotate the JPEG 180 degrees.
         return (ORIENTATIONS.get(rotation) + mSensorOrientation + 270) % 360
+    }
+
+    fun switchAitoFlash(){
+        isAutoFlashEnabled = !isAutoFlashEnabled
+
+        if (mCallback != null){
+            mCallback!!.onAutoFlashChanged(isAutoFlashEnabled)
+        }
     }
 
     private class ImageSaver internal constructor(private val mImage: Image, private val mFile: File) : Runnable {

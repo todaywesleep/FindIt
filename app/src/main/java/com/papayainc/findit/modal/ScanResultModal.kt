@@ -33,6 +33,7 @@ class ScanResultModal(context: Context) : Dialog(context) {
 
     private fun bindListeners() {
         this.dismissButton.setOnClickListener {
+            clearModalData()
             dismiss()
         }
     }
@@ -46,5 +47,10 @@ class ScanResultModal(context: Context) : Dialog(context) {
             textView.text = item.label + " - " + (item.percentage * 100).roundToInt().toString() + "%"
             contentContainer.addView(textView)
         }
+    }
+
+    private fun clearModalData(){
+        takenImage.setImageResource(0)
+        contentContainer.removeAllViews()
     }
 }
