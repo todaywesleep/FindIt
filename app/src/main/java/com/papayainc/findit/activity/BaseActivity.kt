@@ -6,7 +6,6 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.ListView
 import androidx.appcompat.app.ActionBar
-import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
@@ -26,8 +25,13 @@ abstract class BaseActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         super.setContentView(R.layout.activity_base)
         mainContainer = findViewById(R.id.base_main_container)
+
+        setUpToolbar()
+        setUpDrawer()
+    }
+
+    private fun setUpToolbar(){
         toolbar = findViewById(R.id.toolbar)
-        mDrawerLayout = findViewById(R.id.drawer_layout)
         setSupportActionBar(toolbar)
 
         val actionbar: ActionBar? = supportActionBar
@@ -35,11 +39,10 @@ abstract class BaseActivity : AppCompatActivity() {
             setDisplayHomeAsUpEnabled(true)
             setHomeAsUpIndicator(R.drawable.ic_menu)
         }
-
-        setUpDrawer()
     }
 
     private fun setUpDrawer() {
+        mDrawerLayout = findViewById(R.id.drawer_layout)
         mDrawerLayout = findViewById(R.id.drawer_layout)
         mDrawerList = findViewById(R.id.left_drawer)
 
@@ -62,5 +65,22 @@ abstract class BaseActivity : AppCompatActivity() {
 
     override fun setContentView(layoutResID: Int) {
         layoutInflater.inflate(layoutResID, mainContainer)
+    }
+
+    protected fun setToolbarVisibility(isVisible: Boolean){
+        val newVisibilityState = if (isVisible) View.VISIBLE else View.GONE
+        toolbar.visibility = newVisibilityState
+    }
+
+    protected fun setDrawerState(opened: Boolean){
+        if (opened) {
+            mDrawerLayout.openDrawer(GravityCompat.START)
+        }else{
+            mDrawerLayout.closeDrawer(GravityCompat.START)
+        }
+    }
+
+    protected fun getDrawerItemsList(): ArrayList<String>{
+        return arrayListOf()
     }
 }

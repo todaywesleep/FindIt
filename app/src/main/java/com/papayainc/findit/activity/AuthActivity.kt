@@ -17,6 +17,7 @@ class AuthActivity: BaseActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
         FirebaseApp.initializeApp(this)
+        setToolbarVisibility(false)
 
         mLoginInput = findViewById(R.id.login_login_input)
         mPasswordInput = findViewById(R.id.login_password_input)

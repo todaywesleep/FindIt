@@ -9,13 +9,11 @@ import android.widget.BaseAdapter
 import android.widget.TextView
 import com.papayainc.findit.R
 
-class DrawerAdapter: BaseAdapter {
-    var items: ArrayList<String> = arrayListOf()
-    var context: Context
+class DrawerAdapter(var context: Context, items: ArrayList<String>) : BaseAdapter() {
+    private var items: ArrayList<String> = arrayListOf()
     private lateinit var title: TextView
 
-    constructor (context: Context, items: ArrayList<String>) : super() {
-        this.context = context
+    init {
         this.items.addAll(items)
     }
 
@@ -30,7 +28,6 @@ class DrawerAdapter: BaseAdapter {
     override fun getItemId(position: Int): Long {
         return position.toLong()
     }
-
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         var changedView = convertView
