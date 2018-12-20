@@ -9,6 +9,8 @@
 	<string name="login_password">Password</string>
 	<string name="login_button_login">Login</string>
 	<string name="login_button_register">Register</string>
+	<string name="login_password_error">Password must contain more than 4 symbols</string>
+	<string name="login_login_error">login must contain only alphabetic symbols</string>
 	
 	<!--Drawer-->
 	<string name="drawer_auto_flash">Auto flashlight</string>

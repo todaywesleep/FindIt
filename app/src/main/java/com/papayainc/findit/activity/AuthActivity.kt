@@ -9,7 +9,6 @@ import com.papayainc.findit.R
 import com.papayainc.findit.adapter.DrawerAdapter
 import com.papayainc.findit.view.MaterialInputField
 import com.google.firebase.auth.FirebaseAuth
-import com.papayainc.findit.modal.ErrorModal
 import com.papayainc.findit.utils.AuthUtils
 
 
@@ -35,16 +34,21 @@ class AuthActivity : BaseActivity(), View.OnClickListener {
         mPasswordInput = findViewById(R.id.login_password_input)
         mLoginButton = findViewById(R.id.login_login_button)
         mRegisterButton = findViewById(R.id.login_register_button)
-        mLoginButton.setOnClickListener(this)
-        mRegisterButton.setOnClickListener(this)
 
         if (isUserExist()){
             navigateToMainActivity()
         }
 
         setDrawerGestureState(false)
+        setListeners()
+    }
 
-        showError("Sample")
+    private fun setListeners(){
+        mLoginButton.setOnClickListener(this)
+        mRegisterButton.setOnClickListener(this)
+
+        mPasswordInput.setFilters(getString(R.string.login_password_error), 4, null, null, true)
+        mLoginInput.setFilters(getString(R.string.login_login_error), null, null, "^[A-Za-z]+", true)
     }
 
     override fun onClick(v: View?) {
