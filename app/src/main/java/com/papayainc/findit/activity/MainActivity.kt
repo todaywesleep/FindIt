@@ -5,8 +5,10 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
 import com.papayainc.findit.R
+import com.papayainc.findit.constants.DrawerConstants
 import com.papayainc.findit.fragment.CameraFragment
 import com.papayainc.findit.modal.ScanResultModal
+import com.papayainc.findit.model.DrawerItem
 import com.papayainc.findit.model.ScanResult
 
 class MainActivity : BaseActivity(), CameraFragment.Callback, View.OnClickListener {
@@ -75,5 +77,15 @@ class MainActivity : BaseActivity(), CameraFragment.Callback, View.OnClickListen
                 R.id.activity_main_switch_auto_flash -> mCameraFragment.switchAitoFlash()
             }
         }
+    }
+
+    override fun getDrawerItemsList(): ArrayList<DrawerItem> {
+        return arrayListOf(
+            DrawerItem(
+                getString(R.string.drawer_auto_flash),
+                R.drawable.ic_flash_auto,
+                DrawerConstants.AUTO_FLASH
+            )
+        )
     }
 }

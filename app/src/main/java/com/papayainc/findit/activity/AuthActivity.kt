@@ -8,7 +8,7 @@ import com.google.firebase.FirebaseApp
 import com.papayainc.findit.R
 import com.papayainc.findit.view.MaterialInputField
 
-class AuthActivity: BaseActivity(), View.OnClickListener {
+class AuthActivity : BaseActivity(), View.OnClickListener {
     private lateinit var mLoginInput: MaterialInputField
     private lateinit var mPasswordInput: MaterialInputField
     private lateinit var mLoginButton: MaterialButton
@@ -23,11 +23,13 @@ class AuthActivity: BaseActivity(), View.OnClickListener {
         mPasswordInput = findViewById(R.id.login_password_input)
         mLoginButton = findViewById(R.id.login_login_button)
         mLoginButton.setOnClickListener(this)
+
+        setDrawerGestureState(false)
     }
 
     override fun onClick(v: View?) {
-        if (v != null){
-            when (v.id){
+        if (v != null) {
+            when (v.id) {
                 R.id.login_login_button -> {
                     val intent = Intent(this, MainActivity::class.java)
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
