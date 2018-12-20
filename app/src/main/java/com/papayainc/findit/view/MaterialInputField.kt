@@ -5,6 +5,7 @@ import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
 import android.util.AttributeSet
+import android.util.Log
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.textfield.TextInputEditText
@@ -55,18 +56,18 @@ class MaterialInputField : ConstraintLayout {
         }
     }
 
-    fun setErrors(text: String): Boolean{
+    fun setErrors(text: String){
         var isErrorExist = false
 
         if (minLength != null) {
-            isErrorExist = minLength!! > text.length
+            isErrorExist = text.length < minLength!!
         }
 
-        if (maxLength != null) {
-            isErrorExist = maxLength!! < text.length
+        if (maxLength != null && !isErrorExist) {
+            isErrorExist = text.length > maxLength!!
         }
 
-        if (regex != null) {
+        if (regex != null && !isErrorExist) {
             isErrorExist = !text.matches(regex!!.toRegex())
         }
 
@@ -75,8 +76,11 @@ class MaterialInputField : ConstraintLayout {
         }else{
             mTextInputLayout.error = null
         }
+    }
 
-        return isErrorExist
+    fun isErrorExist(): Boolean{
+        setErrors(mTextInputField.text.toString())
+        return mTextInputLayout.error != null
     }
 
     private val mTextInputLayout: TextInputLayout
