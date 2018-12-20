@@ -8,6 +8,9 @@ import com.google.firebase.FirebaseApp
 import com.papayainc.findit.R
 import com.papayainc.findit.adapter.DrawerAdapter
 import com.papayainc.findit.view.MaterialInputField
+import com.google.firebase.auth.FirebaseAuth
+import com.papayainc.findit.utils.AuthUtils
+
 
 class AuthActivity : BaseActivity(), View.OnClickListener {
     override fun getDrawerCallback(): DrawerAdapter.Callback? {
@@ -19,6 +22,8 @@ class AuthActivity : BaseActivity(), View.OnClickListener {
     private lateinit var mLoginButton: MaterialButton
     private lateinit var mRegisterButton: MaterialButton
 
+    private var auth: FirebaseAuth? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -29,8 +34,12 @@ class AuthActivity : BaseActivity(), View.OnClickListener {
         mPasswordInput = findViewById(R.id.login_password_input)
         mLoginButton = findViewById(R.id.login_login_button)
         mRegisterButton = findViewById(R.id.login_register_button)
-//        mLoginButton.setOnClickListener(this)
-//        mRegisterButton.setOnClickListener(this)
+        mLoginButton.setOnClickListener(this)
+        mRegisterButton.setOnClickListener(this)
+
+        if (isUserExist()){
+            navigateToMainActivity()
+        }
 
         setDrawerGestureState(false)
     }
@@ -39,16 +48,31 @@ class AuthActivity : BaseActivity(), View.OnClickListener {
         if (v != null) {
             when (v.id) {
                 R.id.login_login_button -> {
-                    val intent = Intent(this, MainActivity::class.java)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-                    startActivity(intent)
-                    finish()
+                    navigateToMainActivity()
                 }
 
                 R.id.login_register_button -> {
-
+                    AuthUtils.signIn(this@AuthActivity)
                 }
             }
         }
+    }
+
+    private fun isUserExist(): Boolean {
+        auth = FirebaseAuth.getInstance()
+        val currentUser = auth!!.currentUser
+
+        return currentUser != null
+    }
+
+    private fun navigateToMainActivity(){
+        val intent = Intent(this, MainActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
+        finish()
+    }
+
+    private fun createUser(){
+        
     }
 }
