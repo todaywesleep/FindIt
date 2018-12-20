@@ -4,14 +4,17 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import com.google.android.gms.tasks.OnSuccessListener
+import com.google.android.gms.tasks.Task
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.AuthResult
+import com.google.firebase.auth.FirebaseAuth
 import com.papayainc.findit.R
 import com.papayainc.findit.adapter.DrawerAdapter
-import com.papayainc.findit.view.MaterialInputField
-import com.google.firebase.auth.FirebaseAuth
+import com.papayainc.findit.constants.CommonConstants
 import com.papayainc.findit.modal.ErrorModal
-import com.papayainc.findit.utils.AuthUtils
+import com.papayainc.findit.view.MaterialInputField
 
 
 class AuthActivity : BaseActivity(), View.OnClickListener {
@@ -50,7 +53,7 @@ class AuthActivity : BaseActivity(), View.OnClickListener {
         mRegisterButton.setOnClickListener(this)
 
         mPasswordInput.setFilters(getString(R.string.login_password_error), 4, null, null, true)
-        mLoginInput.setFilters(getString(R.string.login_login_error), 1, null, "[A-Za-z]", true)
+        mLoginInput.setFilters(getString(R.string.login_login_error), 1, null, CommonConstants.emailRegex, true)
     }
 
     override fun onClick(v: View?) {
@@ -85,7 +88,20 @@ class AuthActivity : BaseActivity(), View.OnClickListener {
         val isErrorExist = mPasswordInput.isErrorExist() && mLoginInput.isErrorExist()
 
         if (!isErrorExist){
-            
+            auth!!.createUserWithEmailAndPassword(
+                mLoginInput.getText(),
+                mPasswordInput.getText()
+            ).addOnCompleteListener { task: Task<AuthResult> ->
+                if (task.isSuccessful){
+                    if (isUserExist()){
+                        navigateToMainActivity()
+                    }
+                }else{
+                    showError(getString(R.string.login_registration_error))
+                }
+            }.addOnFailureListener {exception ->
+                showError(exception.message ?: getString(R.string.error_unknown))
+            }
         }else{
             showError(getString(R.string.login_fix_errors))
         }

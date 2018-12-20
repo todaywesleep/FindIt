@@ -24,15 +24,15 @@ class MaterialInputField : ConstraintLayout {
         unpackHint(attrs, context)
     }
 
-    fun setFilters(errorMessage: String, minLength: Int?, maxLength: Int?, regex: String?, instantUpdate: Boolean) {
-        this.errorMessage = errorMessage
-        this.minLength = minLength
-        this.maxLength = maxLength
-        this.regex = regex
-        this.instantUpdate = instantUpdate
+    private val mTextInputLayout: TextInputLayout
+    private val mTextInputField: TextInputEditText
 
-        setWatchers()
-    }
+    private var errorMessage: String = ""
+
+    private var minLength: Int? = null
+    private var maxLength: Int? = null
+    private var regex: String? = null
+    private var instantUpdate: Boolean = false
 
     private fun setWatchers() {
         if (minLength != null || maxLength != null || regex != null) {
@@ -56,7 +56,7 @@ class MaterialInputField : ConstraintLayout {
         }
     }
 
-    fun setErrors(text: String){
+    private fun setErrors(text: String){
         var isErrorExist = false
 
         if (minLength != null) {
@@ -78,21 +78,6 @@ class MaterialInputField : ConstraintLayout {
         }
     }
 
-    fun isErrorExist(): Boolean{
-        setErrors(mTextInputField.text.toString())
-        return mTextInputLayout.error != null
-    }
-
-    private val mTextInputLayout: TextInputLayout
-    private val mTextInputField: TextInputEditText
-
-    private var errorMessage: String = ""
-
-    private var minLength: Int? = null
-    private var maxLength: Int? = null
-    private var regex: String? = null
-    private var instantUpdate: Boolean = false
-
     init {
         LayoutInflater.from(context).inflate(R.layout.view_input_field, this, true)
 
@@ -111,5 +96,24 @@ class MaterialInputField : ConstraintLayout {
                         getInteger(R.styleable.MaterialInputField_android_inputType, InputType.TYPE_CLASS_TEXT)
             }
         }
+    }
+
+    fun getText(): String {
+        return mTextInputField.text.toString()
+    }
+
+    fun isErrorExist(): Boolean{
+        setErrors(mTextInputField.text.toString())
+        return mTextInputLayout.error != null
+    }
+
+    fun setFilters(errorMessage: String, minLength: Int?, maxLength: Int?, regex: String?, instantUpdate: Boolean) {
+        this.errorMessage = errorMessage
+        this.minLength = minLength
+        this.maxLength = maxLength
+        this.regex = regex
+        this.instantUpdate = instantUpdate
+
+        setWatchers()
     }
 }
