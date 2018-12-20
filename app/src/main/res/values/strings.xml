@@ -8,6 +8,7 @@
 	<string name="login_username">User name</string>
 	<string name="login_password">Password</string>
 	<string name="login_button_login">Login</string>
+	<string name="login_button_register">Register</string>
 	
 	<!--Drawer-->
 	<string name="drawer_auto_flash">Auto flashlight</string>

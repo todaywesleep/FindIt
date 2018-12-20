@@ -17,6 +17,7 @@ class AuthActivity : BaseActivity(), View.OnClickListener {
     private lateinit var mLoginInput: MaterialInputField
     private lateinit var mPasswordInput: MaterialInputField
     private lateinit var mLoginButton: MaterialButton
+    private lateinit var mRegisterButton: MaterialButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,7 +28,9 @@ class AuthActivity : BaseActivity(), View.OnClickListener {
         mLoginInput = findViewById(R.id.login_login_input)
         mPasswordInput = findViewById(R.id.login_password_input)
         mLoginButton = findViewById(R.id.login_login_button)
-        mLoginButton.setOnClickListener(this)
+        mRegisterButton = findViewById(R.id.login_register_button)
+//        mLoginButton.setOnClickListener(this)
+//        mRegisterButton.setOnClickListener(this)
 
         setDrawerGestureState(false)
     }
@@ -40,6 +43,10 @@ class AuthActivity : BaseActivity(), View.OnClickListener {
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
                     startActivity(intent)
                     finish()
+                }
+
+                R.id.login_register_button -> {
+
                 }
             }
         }
