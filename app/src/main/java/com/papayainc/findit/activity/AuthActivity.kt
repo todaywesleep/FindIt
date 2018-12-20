@@ -80,6 +80,6 @@ class AuthActivity : BaseActivity(), View.OnClickListener {
     }
 
     private fun showError(message: String){
-//        ErrorModal(this, message).show()
+
     }
 }
