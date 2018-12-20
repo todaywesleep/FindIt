@@ -12,4 +12,8 @@
 	
 	<!--Drawer-->
 	<string name="drawer_auto_flash">Auto flashlight</string>
+	
+	<!--Error modal-->
+	<string name="modal_error_confirm">OK, got it</string>
+	<string name="modal_error_title">Oh no, error :(</string>
 </resources>

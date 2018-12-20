@@ -9,6 +9,9 @@
 	<dimen name="padding_big">32dp</dimen>
 	
 	<dimen name="size_corner_main">2dp</dimen>
+	<dimen name="size_corner_modals">8dp</dimen>
 	
 	<dimen name="elevation_default">4dp</dimen>
+	
+	<dimen name="modal_title">20sp</dimen>
 </resources>

@@ -13,7 +13,7 @@ import com.papayainc.findit.R
 import com.papayainc.findit.model.ScanResult
 import kotlin.math.roundToInt
 
-class ScanResultModal(context: Context) : Dialog(context) {
+class ScanResultModal(context: Context) : BaseModal(context) {
     private lateinit var takenImage: ImageView
     private lateinit var dismissButton: Button
 

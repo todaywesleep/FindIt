@@ -9,6 +9,7 @@ import com.papayainc.findit.R
 import com.papayainc.findit.adapter.DrawerAdapter
 import com.papayainc.findit.view.MaterialInputField
 import com.google.firebase.auth.FirebaseAuth
+import com.papayainc.findit.modal.ErrorModal
 import com.papayainc.findit.utils.AuthUtils
 
 
@@ -42,6 +43,8 @@ class AuthActivity : BaseActivity(), View.OnClickListener {
         }
 
         setDrawerGestureState(false)
+
+        showError("Sample")
     }
 
     override fun onClick(v: View?) {
@@ -73,6 +76,10 @@ class AuthActivity : BaseActivity(), View.OnClickListener {
     }
 
     private fun createUser(){
-        
+
+    }
+
+    private fun showError(message: String){
+//        ErrorModal(this, message).show()
     }
 }

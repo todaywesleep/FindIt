@@ -5,10 +5,13 @@
 	<color name="colorAccent">#008577</color>
 	
 	<color name="colorBlack">#000000</color>
+	<color name="textColorDark">@color/colorBlack</color>
 	
 	<color name="darkButtonTextColor">#FFFFFF</color>
 	<color name="darkButtonBackground">@color/colorAccent</color>
 	
 	<color name="enabledButton">@color/colorAccent</color>
 	<color name="disabledButton">#FF8787</color>
+	
+	<color name="modalBackground">#FFFFFF</color>
 </resources>
