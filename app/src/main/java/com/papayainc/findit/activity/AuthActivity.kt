@@ -6,9 +6,14 @@ import android.view.View
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.FirebaseApp
 import com.papayainc.findit.R
+import com.papayainc.findit.adapter.DrawerAdapter
 import com.papayainc.findit.view.MaterialInputField
 
 class AuthActivity : BaseActivity(), View.OnClickListener {
+    override fun getDrawerCallback(): DrawerAdapter.Callback? {
+        return null
+    }
+
     private lateinit var mLoginInput: MaterialInputField
     private lateinit var mPasswordInput: MaterialInputField
     private lateinit var mLoginButton: MaterialButton

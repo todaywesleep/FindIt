@@ -2,34 +2,33 @@ package com.papayainc.findit.activity
 
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import com.papayainc.findit.R
+import com.papayainc.findit.adapter.DrawerAdapter
 import com.papayainc.findit.constants.DrawerConstants
 import com.papayainc.findit.fragment.CameraFragment
 import com.papayainc.findit.modal.ScanResultModal
 import com.papayainc.findit.model.DrawerItem
 import com.papayainc.findit.model.ScanResult
 
-class MainActivity : BaseActivity(), CameraFragment.Callback, View.OnClickListener {
-    private lateinit var mGetImageCallback: CameraFragment.Callback
+class MainActivity : BaseActivity(), CameraFragment.Callback,
+    View.OnClickListener {
 
     //Views
     private lateinit var scanResultModal: ScanResultModal
     private lateinit var mCameraFragment: CameraFragment
-    private lateinit var mSwitchAutoFlash: ImageButton
     private lateinit var mSettingsButton: ImageButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_camera)
-        mSwitchAutoFlash = findViewById(R.id.activity_main_switch_auto_flash)
         mSettingsButton = findViewById(R.id.activity_main_settings)
         mSettingsButton.setOnClickListener(this)
 
         setUpCameraFragment(savedInstanceState)
-        bindListeners()
 
         scanResultModal = ScanResultModal(this)
         setToolbarVisibility(false)
@@ -37,8 +36,7 @@ class MainActivity : BaseActivity(), CameraFragment.Callback, View.OnClickListen
 
     private fun setUpCameraFragment(savedInstanceState: Bundle?) {
         mCameraFragment = CameraFragment.newInstance()
-        mGetImageCallback = this
-        mCameraFragment.setCallback(mGetImageCallback)
+        mCameraFragment.setCallback(this)
 
         if (null == savedInstanceState) {
             supportFragmentManager.beginTransaction()
@@ -54,17 +52,7 @@ class MainActivity : BaseActivity(), CameraFragment.Callback, View.OnClickListen
     }
 
     override fun onAutoFlashChanged(newState: Boolean) {
-        val newBackground = if (newState) {
-            R.drawable.background_transparent_corner_full_size
-        } else {
-            0
-        }
-
-        mSwitchAutoFlash.setBackgroundResource(newBackground)
-    }
-
-    private fun bindListeners() {
-        mSwitchAutoFlash.setOnClickListener(this)
+        //Callback which calls after cameraPreview fragment successfully change auto flash mode
     }
 
     override fun onClick(v: View?) {
@@ -73,8 +61,6 @@ class MainActivity : BaseActivity(), CameraFragment.Callback, View.OnClickListen
                 R.id.activity_main_settings -> {
                     setDrawerState(true)
                 }
-
-                R.id.activity_main_switch_auto_flash -> mCameraFragment.switchAitoFlash()
             }
         }
     }
@@ -84,8 +70,23 @@ class MainActivity : BaseActivity(), CameraFragment.Callback, View.OnClickListen
             DrawerItem(
                 getString(R.string.drawer_auto_flash),
                 R.drawable.ic_flash_auto,
-                DrawerConstants.AUTO_FLASH
+                DrawerConstants.AUTO_FLASH,
+                false
             )
         )
+    }
+
+    override fun getDrawerCallback(): DrawerAdapter.Callback? {
+        return object : DrawerAdapter.Callback {
+            override fun onItemSelected(item: DrawerItem) {
+                when (item.itemType) {
+                    DrawerConstants.AUTO_FLASH -> {
+                        mCameraFragment.switchAutoFlash()
+                    }
+
+                    else -> return
+                }
+            }
+        }
     }
 }

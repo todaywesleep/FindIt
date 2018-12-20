@@ -1,16 +1,16 @@
 package com.papayainc.findit.activity
 
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
-import android.widget.ListView
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.navigation.NavigationView
 import com.papayainc.findit.R
 import com.papayainc.findit.adapter.DrawerAdapter
@@ -22,7 +22,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
     private lateinit var mNavigationView: NavigationView
     private lateinit var mDrawerLayout: DrawerLayout
-    private lateinit var mDrawerList: ListView
+    private lateinit var mDrawerRecycler: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,7 +33,7 @@ abstract class BaseActivity : AppCompatActivity() {
         setUpDrawer()
     }
 
-    private fun setUpToolbar(){
+    private fun setUpToolbar() {
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
@@ -46,10 +46,21 @@ abstract class BaseActivity : AppCompatActivity() {
 
     private fun setUpDrawer() {
         mDrawerLayout = findViewById(R.id.drawer_layout)
-        mDrawerList = findViewById(R.id.left_drawer)
         mNavigationView = findViewById(R.id.base_navigation_view)
+        mDrawerRecycler = findViewById(R.id.drawer_recycler)
+        mDrawerRecycler.apply {
+            setHasFixedSize(true)
+            layoutManager = LinearLayoutManager(this@BaseActivity)
 
-        mDrawerList.adapter = DrawerAdapter(this@BaseActivity, getDrawerItemsList())
+            val drawerAdapter = DrawerAdapter(this@BaseActivity, getDrawerItemsList())
+            val drawerCallback = getDrawerCallback()
+            if (drawerCallback != null) {
+                drawerAdapter.setCallback(drawerCallback)
+            }
+
+            adapter = drawerAdapter
+        }
+
         mNavigationView.setNavigationItemSelectedListener { menuItem ->
             menuItem.isChecked = true
             true
@@ -74,25 +85,29 @@ abstract class BaseActivity : AppCompatActivity() {
         layoutInflater.inflate(layoutResID, mainContainer)
     }
 
-    protected fun setToolbarVisibility(isVisible: Boolean){
+    protected fun setToolbarVisibility(isVisible: Boolean) {
         val newVisibilityState = if (isVisible) View.VISIBLE else View.GONE
         toolbar.visibility = newVisibilityState
     }
 
-    protected fun setDrawerState(opened: Boolean){
+    protected fun setDrawerState(opened: Boolean) {
         if (opened) {
             mDrawerLayout.openDrawer(GravityCompat.START)
-        }else{
+        } else {
             mDrawerLayout.closeDrawer(GravityCompat.START)
         }
     }
 
-    protected fun setDrawerGestureState(swipeAllowed: Boolean){
-        val newSwipeState = if (swipeAllowed) DrawerLayout.LOCK_MODE_LOCKED_OPEN else DrawerLayout.LOCK_MODE_LOCKED_CLOSED
+    protected fun setDrawerGestureState(swipeAllowed: Boolean) {
+        val newSwipeState =
+            if (swipeAllowed) DrawerLayout.LOCK_MODE_LOCKED_OPEN else DrawerLayout.LOCK_MODE_LOCKED_CLOSED
+
         mDrawerLayout.setDrawerLockMode(newSwipeState)
     }
 
-    open fun getDrawerItemsList(): ArrayList<DrawerItem>{
+    open fun getDrawerItemsList(): ArrayList<DrawerItem> {
         return arrayListOf()
     }
+
+    abstract fun getDrawerCallback(): DrawerAdapter.Callback?
 }

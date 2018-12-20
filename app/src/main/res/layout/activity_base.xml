@@ -37,9 +37,9 @@
 			android:background="@android:color/transparent"
 			android:id="@+id/base_navigation_view">
 		
-		<ListView
+		<androidx.recyclerview.widget.RecyclerView
 				android:fitsSystemWindows="true"
-				android:id="@+id/left_drawer"
+				android:id="@+id/drawer_recycler"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:background="@android:color/transparent"
