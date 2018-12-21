@@ -23,4 +23,5 @@
 	
 	<!--Common-->
 	<string name="error_unknown">Unknown error</string>
+	<string name="loading">Loading...</string>
 </resources>

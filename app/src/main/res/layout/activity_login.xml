@@ -26,6 +26,7 @@
 				app:hint="@string/login_password"
 				android:layout_marginTop="@dimen/padding_small"
 				android:id="@+id/login_password_input"
+				android:inputType="textPassword"
 				android:elevation="@dimen/elevation_default"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"/>

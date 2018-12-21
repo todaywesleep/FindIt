@@ -1,6 +1,8 @@
 package com.papayainc.findit.activity
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
@@ -15,6 +17,8 @@ import com.google.android.material.navigation.NavigationView
 import com.papayainc.findit.R
 import com.papayainc.findit.adapter.DrawerAdapter
 import com.papayainc.findit.model.DrawerItem
+import com.papayainc.findit.utils.FireBaseDatabase
+import com.papayainc.findit.view.LoadingModal
 
 abstract class BaseActivity : AppCompatActivity() {
     private lateinit var mainContainer: FrameLayout
@@ -23,6 +27,8 @@ abstract class BaseActivity : AppCompatActivity() {
     private lateinit var mNavigationView: NavigationView
     private lateinit var mDrawerLayout: DrawerLayout
     private lateinit var mDrawerRecycler: RecyclerView
+
+    private var mLoadingModal: LoadingModal? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,6 +91,11 @@ abstract class BaseActivity : AppCompatActivity() {
         layoutInflater.inflate(layoutResID, mainContainer)
     }
 
+    override fun onDestroy() {
+        FireBaseDatabase.clearListener()
+        super.onDestroy()
+    }
+
     protected fun setToolbarVisibility(isVisible: Boolean) {
         val newVisibilityState = if (isVisible) View.VISIBLE else View.GONE
         toolbar.visibility = newVisibilityState
@@ -103,6 +114,28 @@ abstract class BaseActivity : AppCompatActivity() {
             if (swipeAllowed) DrawerLayout.LOCK_MODE_LOCKED_OPEN else DrawerLayout.LOCK_MODE_LOCKED_CLOSED
 
         mDrawerLayout.setDrawerLockMode(newSwipeState)
+    }
+
+    protected fun logout(){
+        val intent = Intent(this, AuthActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
+        finish()
+    }
+
+    protected fun startLoading(){
+        if (mLoadingModal == null){
+            mLoadingModal = LoadingModal(this)
+        }
+
+        mLoadingModal!!.show()
+    }
+
+    protected fun finishLoading(){
+        if (mLoadingModal != null){
+            mLoadingModal!!.dismiss()
+            mLoadingModal = null
+        }
     }
 
     open fun getDrawerItemsList(): ArrayList<DrawerItem> {

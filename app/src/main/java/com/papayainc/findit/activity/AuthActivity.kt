@@ -2,22 +2,21 @@ package com.papayainc.findit.activity
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
-import com.google.android.gms.tasks.OnSuccessListener
 import com.google.android.gms.tasks.Task
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.AuthResult
-import com.google.firebase.auth.FirebaseAuth
 import com.papayainc.findit.R
 import com.papayainc.findit.adapter.DrawerAdapter
 import com.papayainc.findit.constants.CommonConstants
 import com.papayainc.findit.modal.ErrorModal
+import com.papayainc.findit.utils.AuthUtils.Companion.authObj
+import com.papayainc.findit.utils.FireBaseDatabase
 import com.papayainc.findit.view.MaterialInputField
 
 
-class AuthActivity : BaseActivity(), View.OnClickListener {
+class AuthActivity : BaseActivity(), View.OnClickListener, FireBaseDatabase.Companion.Callback {
     override fun getDrawerCallback(): DrawerAdapter.Callback? {
         return null
     }
@@ -26,8 +25,6 @@ class AuthActivity : BaseActivity(), View.OnClickListener {
     private lateinit var mPasswordInput: MaterialInputField
     private lateinit var mLoginButton: MaterialButton
     private lateinit var mRegisterButton: MaterialButton
-
-    private var auth: FirebaseAuth? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,20 +37,23 @@ class AuthActivity : BaseActivity(), View.OnClickListener {
         mLoginButton = findViewById(R.id.login_login_button)
         mRegisterButton = findViewById(R.id.login_register_button)
 
-        if (isUserExist()){
-            navigateToMainActivity()
-        }
-
         setDrawerGestureState(false)
         setListeners()
+        renewSession()
     }
 
-    private fun setListeners(){
+    private fun setListeners() {
         mLoginButton.setOnClickListener(this)
         mRegisterButton.setOnClickListener(this)
 
-        mPasswordInput.setFilters(getString(R.string.login_password_error), 4, null, null, true)
+        mPasswordInput.setFilters(getString(R.string.login_password_error), 6, null, null, true)
         mLoginInput.setFilters(getString(R.string.login_login_error), 1, null, CommonConstants.emailRegex, true)
+    }
+
+    override fun isUserExistInDatabase(isExist: Boolean) {
+        if (isExist){
+            navigateToMainActivity()
+        }
     }
 
     override fun onClick(v: View?) {
@@ -70,44 +70,47 @@ class AuthActivity : BaseActivity(), View.OnClickListener {
         }
     }
 
-    private fun isUserExist(): Boolean {
-        auth = FirebaseAuth.getInstance()
-        val currentUser = auth!!.currentUser
-
-        return currentUser != null
+    private fun renewSession() {
+        val currentUser = authObj.currentUser
+        if (currentUser != null){
+            val userEmail = currentUser.email
+            if (userEmail != null){
+                FireBaseDatabase.isUserExistInDatabase(userEmail)
+            }
+        }
     }
 
-    private fun navigateToMainActivity(){
+    private fun navigateToMainActivity() {
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
         finish()
     }
 
-    private fun createUser(){
+    private fun createUser() {
         val isErrorExist = mPasswordInput.isErrorExist() && mLoginInput.isErrorExist()
 
-        if (!isErrorExist){
-            auth!!.createUserWithEmailAndPassword(
+        if (!isErrorExist) {
+            startLoading()
+
+            authObj.createUserWithEmailAndPassword(
                 mLoginInput.getText(),
                 mPasswordInput.getText()
             ).addOnCompleteListener { task: Task<AuthResult> ->
-                if (task.isSuccessful){
-                    if (isUserExist()){
-                        navigateToMainActivity()
-                    }
-                }else{
-                    showError(getString(R.string.login_registration_error))
+                finishLoading()
+                if (task.isSuccessful) {
+                    navigateToMainActivity()
                 }
-            }.addOnFailureListener {exception ->
+            }.addOnFailureListener { exception ->
+                finishLoading()
                 showError(exception.message ?: getString(R.string.error_unknown))
             }
-        }else{
+        } else {
             showError(getString(R.string.login_fix_errors))
         }
     }
 
-    private fun showError(message: String){
+    private fun showError(message: String) {
         ErrorModal(this, message).show()
     }
 }

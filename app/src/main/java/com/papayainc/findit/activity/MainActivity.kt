@@ -2,7 +2,6 @@ package com.papayainc.findit.activity
 
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import com.papayainc.findit.R
@@ -12,9 +11,11 @@ import com.papayainc.findit.fragment.CameraFragment
 import com.papayainc.findit.modal.ScanResultModal
 import com.papayainc.findit.model.DrawerItem
 import com.papayainc.findit.model.ScanResult
+import com.papayainc.findit.utils.AuthUtils
+import com.papayainc.findit.utils.FireBaseDatabase
 
 class MainActivity : BaseActivity(), CameraFragment.Callback,
-    View.OnClickListener {
+    View.OnClickListener, FireBaseDatabase.Companion.Callback {
 
     //Views
     private lateinit var scanResultModal: ScanResultModal
@@ -32,17 +33,14 @@ class MainActivity : BaseActivity(), CameraFragment.Callback,
 
         scanResultModal = ScanResultModal(this)
         setToolbarVisibility(false)
+
+        FireBaseDatabase.setCallback(this)
+        FireBaseDatabase.isUserExistInDatabase(AuthUtils.authObj?.currentUser?.email ?: "")
     }
 
-    private fun setUpCameraFragment(savedInstanceState: Bundle?) {
-        mCameraFragment = CameraFragment.newInstance()
-        mCameraFragment.setCallback(this)
-
-        if (null == savedInstanceState) {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.camera_preview_container, mCameraFragment)
-                .commit()
-        }
+    override fun isUserExistInDatabase(isExist: Boolean) {
+        if (!isExist)
+            logout()
     }
 
     override fun onGetImage(image: Bitmap, scanResult: ArrayList<ScanResult>) {
@@ -87,6 +85,17 @@ class MainActivity : BaseActivity(), CameraFragment.Callback,
                     else -> return
                 }
             }
+        }
+    }
+
+    private fun setUpCameraFragment(savedInstanceState: Bundle?) {
+        mCameraFragment = CameraFragment.newInstance()
+        mCameraFragment.setCallback(this)
+
+        if (null == savedInstanceState) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.camera_preview_container, mCameraFragment)
+                .commit()
         }
     }
 }
