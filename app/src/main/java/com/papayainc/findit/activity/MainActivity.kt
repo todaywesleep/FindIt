@@ -2,8 +2,7 @@ package com.papayainc.findit.activity
 
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.view.View
-import android.widget.ImageButton
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.papayainc.findit.R
 import com.papayainc.findit.adapter.DrawerAdapter
 import com.papayainc.findit.constants.DrawerConstants
@@ -12,20 +11,17 @@ import com.papayainc.findit.modal.ScanResultModal
 import com.papayainc.findit.model.DrawerItem
 import com.papayainc.findit.model.ScanResult
 
-class MainActivity : BaseActivity(), CameraFragment.Callback,
-    View.OnClickListener {
-
+class MainActivity : BaseActivity(), CameraFragment.Callback {
     //Views
     private lateinit var scanResultModal: ScanResultModal
     private lateinit var mCameraFragment: CameraFragment
-    private lateinit var mSettingsButton: ImageButton
+    private lateinit var mBottomNavigationBar: BottomNavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
-        mSettingsButton = findViewById(R.id.activity_main_settings)
-        mSettingsButton.setOnClickListener(this)
+        mBottomNavigationBar = findViewById(R.id.activity_main_bottom_navigation)
 
         setUpCameraFragment(savedInstanceState)
 
@@ -41,16 +37,6 @@ class MainActivity : BaseActivity(), CameraFragment.Callback,
 
     override fun onAutoFlashChanged(newState: Boolean) {
         //Callback which calls after cameraPreview fragment successfully change auto flash mode
-    }
-
-    override fun onClick(v: View?) {
-        if (v != null) {
-            when (v.id) {
-                R.id.activity_main_settings -> {
-                    setDrawerState(true)
-                }
-            }
-        }
     }
 
     override fun getDrawerItemsList(): ArrayList<DrawerItem> {
@@ -78,6 +64,10 @@ class MainActivity : BaseActivity(), CameraFragment.Callback,
         }
     }
 
+    override fun onOpenDrawer() {
+        setDrawerState(true)
+    }
+
     private fun setUpCameraFragment(savedInstanceState: Bundle?) {
         mCameraFragment = CameraFragment.newInstance()
         mCameraFragment.setCallback(this)
@@ -86,6 +76,12 @@ class MainActivity : BaseActivity(), CameraFragment.Callback,
             supportFragmentManager.beginTransaction()
                 .replace(R.id.camera_preview_container, mCameraFragment)
                 .commit()
+        }
+    }
+
+    private fun getBottomNavigationItemsListener(): BottomNavigationView.OnNavigationItemSelectedListener{
+        return BottomNavigationView.OnNavigationItemSelectedListener {
+            true
         }
     }
 }

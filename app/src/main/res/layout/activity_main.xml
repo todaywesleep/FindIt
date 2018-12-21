@@ -14,24 +14,11 @@
 			android:layout_width="match_parent"
 			android:layout_height="0dp"/>
 	
-	<LinearLayout
-			android:padding="@dimen/padding_default"
-			android:orientation="horizontal"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content">
-		
-		<androidx.appcompat.widget.AppCompatImageButton
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:src="@drawable/ic_settings"
-				android:padding="@dimen/padding_default"
-				android:id="@+id/activity_main_settings"/>
-	</LinearLayout>
-	
 	<com.google.android.material.bottomnavigation.BottomNavigationView
 			xmlns:android="http://schemas.android.com/apk/res/android"
 			xmlns:app="http://schemas.android.com/apk/res-auto"
 			android:id="@+id/activity_main_bottom_navigation"
+			style="@style/Widget.MaterialComponents.BottomNavigationView"
 			app:layout_constraintBottom_toBottomOf="parent"
 			android:layout_width="match_parent"
 			android:layout_height="56dp"

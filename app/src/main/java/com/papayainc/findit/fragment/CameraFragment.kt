@@ -18,6 +18,7 @@ import android.util.Size
 import android.util.SparseIntArray
 import android.view.*
 import android.widget.Button
+import android.widget.ImageButton
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
@@ -34,7 +35,7 @@ import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 
-class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallback, ImageProcessor.Callback {
+class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallback, ImageProcessor.Callback, View.OnClickListener {
     override fun getImageLabels(image: Bitmap, result: ArrayList<com.papayainc.findit.model.ScanResult>) {
         if (mCallback != null)
             mCallback!!.onGetImage(image, result)
@@ -59,6 +60,7 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
     interface Callback{
         fun onGetImage(image: Bitmap, scanResult: ArrayList<ScanResult>)
         fun onAutoFlashChanged(newState: Boolean)
+        fun onOpenDrawer()
     }
 
     private var mCallback: Callback? = null
@@ -70,7 +72,10 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
     private var isAutoFlashEnabled = false
 
     private var mCameraId: String? = null
+
+    private lateinit var mSettingsButton: ImageButton
     private lateinit var mTextureView: AutoFitTextureView
+
     private var mCaptureSession: CameraCaptureSession? = null
     private var mCameraDevice: CameraDevice? = null
     private var mPreviewSize: Size? = null
@@ -209,10 +214,24 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mTextureView = view.findViewById(R.id.texture) as AutoFitTextureView
-        getImage = view.findViewById(R.id.getImage)
-        getImage.setOnClickListener {
-            takePicture()
+        mTextureView = view.findViewById(R.id.fragment_camera_texture)
+        mSettingsButton = view.findViewById(R.id.fragment_camera_settings)
+        getImage = view.findViewById(R.id.fragment_camera_get_image)
+
+        mSettingsButton.setOnClickListener(this)
+        getImage.setOnClickListener(this)
+    }
+
+    override fun onClick(v: View?) {
+        if (v != null){
+            when (v.id){
+                R.id.fragment_camera_get_image -> takePicture()
+                R.id.fragment_camera_settings -> {
+                    if (mCallback != null){
+                        mCallback!!.onOpenDrawer()
+                    }
+                }
+            }
         }
     }
 
