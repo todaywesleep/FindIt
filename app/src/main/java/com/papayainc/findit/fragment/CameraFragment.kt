@@ -616,15 +616,21 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
         return (ORIENTATIONS.get(rotation) + mSensorOrientation + 270) % 360
     }
 
-    fun switchAutoFlash(): Boolean{
+    fun switchAutoFlash(): Boolean {
         isAutoFlashEnabled = !isAutoFlashEnabled
 
 
-        if (mCallback != null){
+        if (mCallback != null) {
             mCallback!!.onAutoFlashChanged(isAutoFlashEnabled)
         }
 
         return isAutoFlashEnabled
+    }
+
+    fun clearCallback(){
+        if (this.mCallback != null){
+            this.mCallback = null
+        }
     }
 
     private class ImageSaver internal constructor(private val mImage: Image, private val mFile: File) : Runnable {

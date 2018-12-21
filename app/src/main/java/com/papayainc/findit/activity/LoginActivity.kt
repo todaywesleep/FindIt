@@ -16,7 +16,7 @@ import com.papayainc.findit.utils.AuthUtils.Companion.authObj
 import com.papayainc.findit.view.MaterialInputField
 
 
-class AuthActivity : BaseActivity(), View.OnClickListener, AuthUtils.Companion.Callback {
+class LoginActivity : BaseActivity(), View.OnClickListener, AuthUtils.Companion.Callback {
     override fun getDrawerCallback(): DrawerAdapter.Callback? {
         //Here is no drawer, just do nothing
         return null

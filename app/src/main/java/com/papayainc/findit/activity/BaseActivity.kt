@@ -2,7 +2,6 @@ package com.papayainc.findit.activity
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
@@ -18,7 +17,6 @@ import com.papayainc.findit.R
 import com.papayainc.findit.adapter.DrawerAdapter
 import com.papayainc.findit.model.DrawerItem
 import com.papayainc.findit.utils.AuthUtils
-import com.papayainc.findit.utils.FireBaseDatabase
 import com.papayainc.findit.view.LoadingModal
 
 abstract class BaseActivity : AppCompatActivity() {
@@ -118,7 +116,7 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     protected fun logout(){
-        val intent = Intent(this, AuthActivity::class.java)
+        val intent = Intent(this, LoginActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
         finish()

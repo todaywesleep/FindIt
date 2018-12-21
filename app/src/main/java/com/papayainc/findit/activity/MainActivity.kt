@@ -2,19 +2,24 @@ package com.papayainc.findit.activity
 
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.Log
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.papayainc.findit.R
 import com.papayainc.findit.adapter.DrawerAdapter
 import com.papayainc.findit.constants.DrawerConstants
 import com.papayainc.findit.fragment.CameraFragment
+import com.papayainc.findit.fragment.ProfileFragment
 import com.papayainc.findit.modal.ScanResultModal
 import com.papayainc.findit.model.DrawerItem
 import com.papayainc.findit.model.ScanResult
 
-class MainActivity : BaseActivity(), CameraFragment.Callback {
+class MainActivity : BaseActivity(), CameraFragment.Callback, ProfileFragment.Callback {
     //Views
     private lateinit var scanResultModal: ScanResultModal
+
     private lateinit var mCameraFragment: CameraFragment
+    private lateinit var mProfileFragment: ProfileFragment
+
     private lateinit var mBottomNavigationBar: BottomNavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,6 +27,12 @@ class MainActivity : BaseActivity(), CameraFragment.Callback {
 
         setContentView(R.layout.activity_main)
         mBottomNavigationBar = findViewById(R.id.activity_main_bottom_navigation)
+        mBottomNavigationBar.setOnNavigationItemSelectedListener(getBottomNavigationItemsListener())
+
+        mCameraFragment = CameraFragment.newInstance()
+        mCameraFragment.setCallback(this)
+        mProfileFragment = ProfileFragment.newInstance()
+        mProfileFragment.setCallback(this)
 
         setUpCameraFragment(savedInstanceState)
 
@@ -79,9 +90,24 @@ class MainActivity : BaseActivity(), CameraFragment.Callback {
         }
     }
 
-    private fun getBottomNavigationItemsListener(): BottomNavigationView.OnNavigationItemSelectedListener{
+    private fun getBottomNavigationItemsListener(): BottomNavigationView.OnNavigationItemSelectedListener {
         return BottomNavigationView.OnNavigationItemSelectedListener {
+            when (it.itemId) {
+                R.id.activity_main_menu_action -> {
+                    Log.d("dbg", "select 1")
+                }
+
+                R.id.activity_main_menu_profile -> {
+                    Log.d("dbg", "select 2")
+                }
+            }
             true
         }
+    }
+
+    override fun onDestroy() {
+        mCameraFragment.clearCallback()
+        mProfileFragment.clearCallback()
+        super.onDestroy()
     }
 }
