@@ -13,7 +13,7 @@
 			android:textStyle="bold"
 			android:textSize="@dimen/modal_title"
 			android:text="@string/modal_error_title"
-			android:textColor="@color/textColorDark"/>
+			android:textColor="@color/color_text_dark"/>
 	
 	<TextView
 			app:layout_constraintTop_toBottomOf="@id/modal_error_title"
@@ -21,7 +21,7 @@
 			android:layout_marginTop="@dimen/padding_small"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:textColor="@color/textColorDark"/>
+			android:textColor="@color/color_text_dark"/>
 	
 	<com.google.android.material.button.MaterialButton
 			android:id="@+id/modal_error_confirm_button"

@@ -9,7 +9,7 @@
 	<string name="login_password">Password</string>
 	<string name="login_button_login">Login</string>
 	<string name="login_button_register">Register</string>
-	<string name="login_password_error">Password must contain more than 4 symbols</string>
+	<string name="login_password_error">Password must contain more than 6 symbols</string>
 	<string name="login_login_error">Can\'t find email in entered string</string>
 	<string name="login_fix_errors">I found errors in inserted data. Please fix this errors and try again</string>
 	<string name="login_registration_error">Can\'t create user with this credentials</string>

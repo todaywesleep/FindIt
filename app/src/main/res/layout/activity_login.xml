@@ -18,6 +18,7 @@
 		<com.papayainc.findit.view.MaterialInputField
 				app:hint="@string/login_username"
 				android:id="@+id/login_login_input"
+				android:inputType="textEmailAddress"
 				android:elevation="@dimen/elevation_default"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"/>

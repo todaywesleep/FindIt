@@ -2,6 +2,7 @@ package com.papayainc.findit.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import com.google.android.gms.tasks.Task
 import com.google.android.material.button.MaterialButton
@@ -30,7 +31,10 @@ class LoginActivity : BaseActivity(), View.OnClickListener, AuthUtils.Companion.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+
         FirebaseApp.initializeApp(this)
+        AuthUtils.setCallback(this)
+
         setToolbarVisibility(false)
 
         mLoginInput = findViewById(R.id.login_login_input)
@@ -52,7 +56,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, AuthUtils.Companion.
     }
 
     override fun isSessionResumed(b: Boolean) {
-        if (b){
+        if (b) {
             navigateToMainActivity()
         }
     }
@@ -60,19 +64,35 @@ class LoginActivity : BaseActivity(), View.OnClickListener, AuthUtils.Companion.
     override fun onClick(v: View?) {
         if (v != null) {
             when (v.id) {
-                R.id.login_login_button -> {
-                    navigateToMainActivity()
-                }
-
-                R.id.login_register_button -> {
-                    createUser()
-                }
+                R.id.login_login_button -> login()
+                R.id.login_register_button -> createUser()
             }
         }
     }
 
+    override fun isLoginSuccessful(isSuccessful: Boolean, error: String?) {
+        finishLoading()
+
+        if (isSuccessful && error == null) {
+            navigateToMainActivity()
+        } else {
+            showError(error!!)
+        }
+    }
+
+    private fun login() {
+        val isErrorExist = mPasswordInput.isErrorExist() || mLoginInput.isErrorExist()
+
+        if (!isErrorExist) {
+            startLoading()
+            AuthUtils.login(
+                mLoginInput.getText(),
+                mPasswordInput.getText()
+            )
+        }
+    }
+
     private fun renewSession() {
-        AuthUtils.setCallback(this)
         AuthUtils.renewSession()
     }
 

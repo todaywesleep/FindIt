@@ -4,9 +4,6 @@
 	<color name="colorPrimaryDark">#00574B</color>
 	<color name="colorAccent">#008577</color>
 	
-	<color name="colorBlack">#000000</color>
-	<color name="textColorDark">@color/colorBlack</color>
-	
 	<color name="darkButtonTextColor">#FFFFFF</color>
 	<color name="darkButtonBackground">@color/colorAccent</color>
 	
@@ -14,4 +11,12 @@
 	<color name="disabledButton">#FF8787</color>
 	
 	<color name="modalBackground">#FFFFFF</color>
+	
+	<color name="active_item_text_tab">@color/color_text_light</color>
+	<color name="inactive_item_text_tab">@color/color_text_light</color>
+	
+	
+	
+	<color name="color_text_light">#FFFFFF</color>
+	<color name="color_text_dark">#000000</color>
 </resources>
