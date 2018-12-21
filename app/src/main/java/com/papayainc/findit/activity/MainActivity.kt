@@ -43,7 +43,7 @@ class MainActivity : BaseActivity(), CameraFragment.Callback, ProfileFragment.Ca
         mBottomNavigationBar = findViewById(R.id.activity_main_bottom_navigation)
         mBottomNavigationBar.setOnNavigationItemSelectedListener(getBottomNavigationItemsListener())
 
-        mCameraFragment = CameraFragment.newInstance()
+        mCameraFragment = CameraFragment.getNewInstance()
         mCameraFragment.setCallback(this)
         mProfileFragment = ProfileFragment.newInstance()
         mProfileFragment.setCallback(this)

@@ -5,12 +5,10 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 	
-	<com.papayainc.findit.view.AutoFitTextureView
-			android:id="@+id/fragment_camera_texture"
+	<io.fotoapparat.view.CameraView
+			android:id="@+id/fragment_camera_preview"
 			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:layout_alignParentStart="true"
-			android:layout_alignParentTop="true"/>
+			android:layout_height="match_parent"/>
 	
 	<LinearLayout
 			android:padding="@dimen/padding_default"
