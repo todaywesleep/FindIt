@@ -23,16 +23,12 @@ import com.papayainc.findit.processors.ImageProcessor
 import io.fotoapparat.Fotoapparat
 import io.fotoapparat.configuration.CameraConfiguration
 import io.fotoapparat.configuration.UpdateConfiguration
-import io.fotoapparat.log.loggers
 import io.fotoapparat.parameter.Flash
 import io.fotoapparat.parameter.ScaleType
-import io.fotoapparat.selector.FlashSelector
 import io.fotoapparat.selector.autoFlash
 import io.fotoapparat.selector.back
 import io.fotoapparat.selector.off
 import io.fotoapparat.view.CameraView
-import kotlinx.coroutines.newFixedThreadPoolContext
-import java.lang.Exception
 
 class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallback, ImageProcessor.Callback,
     View.OnClickListener {
@@ -179,7 +175,6 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
         )
 
         flashMode = if (flashMode == Flash.Off) Flash.Auto else Flash.Off
-        Log.d("dbg", (flashMode == Flash.Off).toString())
         if (mCallback != null){
             mCallback!!.onAutoFlashChanged(flashMode == Flash.Auto)
         }

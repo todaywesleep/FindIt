@@ -2,6 +2,9 @@ package com.papayainc.findit.utils
 
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.papayainc.findit.modal.User
+import com.papayainc.findit.modal.UserSettings
 
 class AuthUtils {
     companion object {
@@ -12,8 +15,27 @@ class AuthUtils {
 
         private val TAG = "[" + AuthUtils::class.java.simpleName + "]"
 
-        val authObj = FirebaseAuth.getInstance()!!
+        var authObj: FirebaseAuth
+        var currentUserObj: User? = null
         private var mCallback: Callback? = null
+
+        init {
+            authObj = FirebaseAuth.getInstance()!!
+            unpackUserData(authObj.currentUser)
+        }
+
+        private fun unpackUserData(user: FirebaseUser?){
+            currentUserObj = User()
+            currentUserObj!!.apply {
+                if (user != null) {
+                    email = user.email.toString()
+                    userSettings = UserSettings()
+                } else {
+                    email = ""
+                    userSettings = UserSettings()
+                }
+            }
+        }
 
         fun setCallback(callback: Callback) {
             this.mCallback = callback
