@@ -10,7 +10,7 @@
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintBottom_toTopOf="@id/activity_main_bottom_navigation"
-			android:id="@+id/camera_preview_container"
+			android:id="@+id/activity_main_content_container"
 			android:layout_width="match_parent"
 			android:layout_height="0dp"/>
 	

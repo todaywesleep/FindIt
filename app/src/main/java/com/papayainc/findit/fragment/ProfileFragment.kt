@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.button.MaterialButton
 import com.papayainc.findit.R
 
-class ProfileFragment : Fragment() {
+class ProfileFragment : Fragment(), View.OnClickListener {
     companion object {
         fun newInstance(): ProfileFragment {
             return ProfileFragment()
@@ -16,7 +16,7 @@ class ProfileFragment : Fragment() {
     }
 
     interface Callback {
-
+        fun onLogoutPressed()
     }
 
     private lateinit var logoutButton: MaterialButton
@@ -40,5 +40,15 @@ class ProfileFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         logoutButton = view.findViewById(R.id.fragment_profile_logout)
+    }
+
+    override fun onClick(v: View?) {
+        if (v != null && mCallback != null){
+            when (v.id){
+                R.id.fragment_profile_logout -> {
+                    mCallback!!.onLogoutPressed()
+                }
+            }
+        }
     }
 }

@@ -2,7 +2,7 @@ package com.papayainc.findit.activity
 
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.util.Log
+import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.papayainc.findit.R
 import com.papayainc.findit.adapter.DrawerAdapter
@@ -80,30 +80,40 @@ class MainActivity : BaseActivity(), CameraFragment.Callback, ProfileFragment.Ca
     }
 
     private fun setUpCameraFragment(savedInstanceState: Bundle?) {
-        mCameraFragment = CameraFragment.newInstance()
-        mCameraFragment.setCallback(this)
-
         if (null == savedInstanceState) {
             supportFragmentManager.beginTransaction()
-                .replace(R.id.camera_preview_container, mCameraFragment)
+                .replace(R.id.activity_main_content_container, mCameraFragment)
                 .commit()
         }
     }
 
     private fun getBottomNavigationItemsListener(): BottomNavigationView.OnNavigationItemSelectedListener {
         return BottomNavigationView.OnNavigationItemSelectedListener {
-            when (it.itemId) {
+            val newFragment = when (it.itemId) {
                 R.id.activity_main_menu_action -> {
-                    Log.d("dbg", "select 1")
+                    mCameraFragment
                 }
-
                 R.id.activity_main_menu_profile -> {
-                    Log.d("dbg", "select 2")
+                    mProfileFragment
                 }
+                else -> null
+            }
+
+            if (newFragment != null) {
+                supportFragmentManager.beginTransaction().replace(
+                    R.id.activity_main_content_container,
+                    newFragment as Fragment
+                ).commit()
             }
             true
         }
     }
+
+    //Profile fragment section start //
+    override fun onLogoutPressed() {
+        logout()
+    }
+    //Profile fragment section end //
 
     override fun onDestroy() {
         mCameraFragment.clearCallback()
