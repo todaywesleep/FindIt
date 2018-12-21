@@ -2,6 +2,7 @@ package com.papayainc.findit.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
@@ -116,10 +117,10 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     protected fun logout(){
-        AuthUtils.authObj.signOut()
         val intent = Intent(this, LoginActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
+        AuthUtils.authObj.signOut()
         finish()
     }
 

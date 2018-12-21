@@ -40,6 +40,7 @@ class ProfileFragment : Fragment(), View.OnClickListener {
         super.onViewCreated(view, savedInstanceState)
 
         logoutButton = view.findViewById(R.id.fragment_profile_logout)
+        logoutButton.setOnClickListener(this)
     }
 
     override fun onClick(v: View?) {
