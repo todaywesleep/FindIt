@@ -2,10 +2,14 @@ package com.papayainc.findit.activity
 
 import android.graphics.Bitmap
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
+import androidx.viewpager.widget.ViewPager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.papayainc.findit.R
 import com.papayainc.findit.adapter.DrawerAdapter
+import com.papayainc.findit.adapter.MainActivityFragmentPagerAdapter
+import com.papayainc.findit.adapter.MainActivityFragmentPagerAdapter.Companion.CAMERA_FRAGMENT
+import com.papayainc.findit.adapter.MainActivityFragmentPagerAdapter.Companion.PROFILE_FRAGMENT
 import com.papayainc.findit.constants.DrawerConstants
 import com.papayainc.findit.fragment.CameraFragment
 import com.papayainc.findit.fragment.ProfileFragment
@@ -14,18 +18,28 @@ import com.papayainc.findit.model.DrawerItem
 import com.papayainc.findit.model.ScanResult
 
 class MainActivity : BaseActivity(), CameraFragment.Callback, ProfileFragment.Callback {
+    companion object {
+        const val CAMERA_TAB = R.id.activity_main_menu_action
+        const val PROFILE_TAB = R.id.activity_main_menu_profile
+    }
+
     //Views
     private lateinit var scanResultModal: ScanResultModal
 
     private lateinit var mCameraFragment: CameraFragment
     private lateinit var mProfileFragment: ProfileFragment
 
+    private lateinit var mFragmentPager: ViewPager
+    private lateinit var mFragmentPagerAdapter: MainActivityFragmentPagerAdapter
     private lateinit var mBottomNavigationBar: BottomNavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
+        mFragmentPager = findViewById(R.id.activity_main_pager)
+        mFragmentPager.addOnPageChangeListener(getOnPageChangeListener())
+
         mBottomNavigationBar = findViewById(R.id.activity_main_bottom_navigation)
         mBottomNavigationBar.setOnNavigationItemSelectedListener(getBottomNavigationItemsListener())
 
@@ -34,7 +48,9 @@ class MainActivity : BaseActivity(), CameraFragment.Callback, ProfileFragment.Ca
         mProfileFragment = ProfileFragment.newInstance()
         mProfileFragment.setCallback(this)
 
-        setUpCameraFragment(savedInstanceState)
+        mFragmentPagerAdapter =
+                MainActivityFragmentPagerAdapter(supportFragmentManager, mCameraFragment, mProfileFragment)
+        mFragmentPager.adapter = mFragmentPagerAdapter
 
         scanResultModal = ScanResultModal(this)
         setToolbarVisibility(false)
@@ -79,36 +95,6 @@ class MainActivity : BaseActivity(), CameraFragment.Callback, ProfileFragment.Ca
         setDrawerState(true)
     }
 
-    private fun setUpCameraFragment(savedInstanceState: Bundle?) {
-        if (null == savedInstanceState) {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.activity_main_content_container, mCameraFragment)
-                .commit()
-        }
-    }
-
-    private fun getBottomNavigationItemsListener(): BottomNavigationView.OnNavigationItemSelectedListener {
-        return BottomNavigationView.OnNavigationItemSelectedListener {
-            val newFragment = when (it.itemId) {
-                R.id.activity_main_menu_action -> {
-                    mCameraFragment
-                }
-                R.id.activity_main_menu_profile -> {
-                    mProfileFragment
-                }
-                else -> null
-            }
-
-            if (newFragment != null) {
-                supportFragmentManager.beginTransaction().replace(
-                    R.id.activity_main_content_container,
-                    newFragment as Fragment
-                ).commit()
-            }
-            true
-        }
-    }
-
     //Profile fragment section start //
     override fun onLogoutPressed() {
         logout()
@@ -119,5 +105,33 @@ class MainActivity : BaseActivity(), CameraFragment.Callback, ProfileFragment.Ca
         mCameraFragment.clearCallback()
         mProfileFragment.clearCallback()
         super.onDestroy()
+    }
+
+    private fun getOnPageChangeListener(): ViewPager.OnPageChangeListener {
+        return object : ViewPager.OnPageChangeListener {
+            override fun onPageScrollStateChanged(state: Int) {}
+            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
+            override fun onPageSelected(position: Int) {
+                mBottomNavigationBar.selectedItemId = when (position) {
+                    CAMERA_FRAGMENT -> CAMERA_TAB
+                    else -> PROFILE_TAB
+                }
+            }
+        }
+    }
+
+    private fun getBottomNavigationItemsListener(): BottomNavigationView.OnNavigationItemSelectedListener {
+        return BottomNavigationView.OnNavigationItemSelectedListener {
+            when (it.itemId) {
+                R.id.activity_main_menu_action -> {
+                    mFragmentPager.setCurrentItem(CAMERA_FRAGMENT, true)
+                }
+
+                R.id.activity_main_menu_profile -> {
+                    mFragmentPager.setCurrentItem(PROFILE_FRAGMENT, true)
+                }
+            }
+            true
+        }
     }
 }
