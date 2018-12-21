@@ -23,7 +23,7 @@ class MainActivity : BaseActivity(), CameraFragment.Callback,
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_camera)
+        setContentView(R.layout.activity_main)
         mSettingsButton = findViewById(R.id.activity_main_settings)
         mSettingsButton.setOnClickListener(this)
 
