@@ -11,13 +11,14 @@ import com.papayainc.findit.R
 import com.papayainc.findit.adapter.DrawerAdapter
 import com.papayainc.findit.constants.CommonConstants
 import com.papayainc.findit.modal.ErrorModal
+import com.papayainc.findit.utils.AuthUtils
 import com.papayainc.findit.utils.AuthUtils.Companion.authObj
-import com.papayainc.findit.utils.FireBaseDatabase
 import com.papayainc.findit.view.MaterialInputField
 
 
-class AuthActivity : BaseActivity(), View.OnClickListener, FireBaseDatabase.Companion.Callback {
+class AuthActivity : BaseActivity(), View.OnClickListener, AuthUtils.Companion.Callback {
     override fun getDrawerCallback(): DrawerAdapter.Callback? {
+        //Here is no drawer, just do nothing
         return null
     }
 
@@ -50,8 +51,8 @@ class AuthActivity : BaseActivity(), View.OnClickListener, FireBaseDatabase.Comp
         mLoginInput.setFilters(getString(R.string.login_login_error), 1, null, CommonConstants.emailRegex, true)
     }
 
-    override fun isUserExistInDatabase(isExist: Boolean) {
-        if (isExist){
+    override fun isSessionResumed(b: Boolean) {
+        if (b){
             navigateToMainActivity()
         }
     }
@@ -71,13 +72,8 @@ class AuthActivity : BaseActivity(), View.OnClickListener, FireBaseDatabase.Comp
     }
 
     private fun renewSession() {
-        val currentUser = authObj.currentUser
-        if (currentUser != null){
-            val userEmail = currentUser.email
-            if (userEmail != null){
-                FireBaseDatabase.isUserExistInDatabase(userEmail)
-            }
-        }
+        AuthUtils.setCallback(this)
+        AuthUtils.renewSession()
     }
 
     private fun navigateToMainActivity() {

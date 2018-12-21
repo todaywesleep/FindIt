@@ -17,6 +17,7 @@ import com.google.android.material.navigation.NavigationView
 import com.papayainc.findit.R
 import com.papayainc.findit.adapter.DrawerAdapter
 import com.papayainc.findit.model.DrawerItem
+import com.papayainc.findit.utils.AuthUtils
 import com.papayainc.findit.utils.FireBaseDatabase
 import com.papayainc.findit.view.LoadingModal
 
@@ -92,7 +93,7 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        FireBaseDatabase.clearListener()
+        AuthUtils.clearListener()
         super.onDestroy()
     }
 

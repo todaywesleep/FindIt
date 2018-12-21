@@ -11,11 +11,9 @@ import com.papayainc.findit.fragment.CameraFragment
 import com.papayainc.findit.modal.ScanResultModal
 import com.papayainc.findit.model.DrawerItem
 import com.papayainc.findit.model.ScanResult
-import com.papayainc.findit.utils.AuthUtils
-import com.papayainc.findit.utils.FireBaseDatabase
 
 class MainActivity : BaseActivity(), CameraFragment.Callback,
-    View.OnClickListener, FireBaseDatabase.Companion.Callback {
+    View.OnClickListener {
 
     //Views
     private lateinit var scanResultModal: ScanResultModal
@@ -33,14 +31,6 @@ class MainActivity : BaseActivity(), CameraFragment.Callback,
 
         scanResultModal = ScanResultModal(this)
         setToolbarVisibility(false)
-
-        FireBaseDatabase.setCallback(this)
-        FireBaseDatabase.isUserExistInDatabase(AuthUtils.authObj?.currentUser?.email ?: "")
-    }
-
-    override fun isUserExistInDatabase(isExist: Boolean) {
-        if (!isExist)
-            logout()
     }
 
     override fun onGetImage(image: Bitmap, scanResult: ArrayList<ScanResult>) {

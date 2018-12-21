@@ -23,5 +23,9 @@
 	
 	<!--Common-->
 	<string name="error_unknown">Unknown error</string>
-	<string name="loading">Loading...</string>
+	<string name="loading">Loading…</string>
+	
+	<!--Menu-->
+	<string name="activity_main_menu_action">Action</string>
+	<string name="activity_main_menu_profile">Profile</string>
 </resources>
