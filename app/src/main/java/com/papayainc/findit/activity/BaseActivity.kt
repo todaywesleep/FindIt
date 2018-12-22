@@ -15,8 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.navigation.NavigationView
 import com.papayainc.findit.R
-import com.papayainc.findit.adapter.DrawerAdapter
-import com.papayainc.findit.model.DrawerItem
+import com.papayainc.findit.adapter.SettingsDrawerAdapter
 import com.papayainc.findit.utils.AuthUtils
 import com.papayainc.findit.view.LoadingModal
 
@@ -27,6 +26,7 @@ abstract class BaseActivity : AppCompatActivity() {
     private lateinit var mNavigationView: NavigationView
     private lateinit var mDrawerLayout: DrawerLayout
     private lateinit var mDrawerRecycler: RecyclerView
+    private lateinit var mDrawerRecyclerAdapter: SettingsDrawerAdapter
 
     private var mLoadingModal: LoadingModal? = null
 
@@ -54,14 +54,15 @@ abstract class BaseActivity : AppCompatActivity() {
         mDrawerLayout = findViewById(R.id.drawer_layout)
         mNavigationView = findViewById(R.id.base_navigation_view)
         mDrawerRecycler = findViewById(R.id.drawer_recycler)
+        mDrawerRecyclerAdapter = SettingsDrawerAdapter(this@BaseActivity)
         mDrawerRecycler.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(this@BaseActivity)
 
-            val drawerAdapter = DrawerAdapter(this@BaseActivity, getDrawerItemsList())
+            val drawerAdapter = mDrawerRecyclerAdapter
             val drawerCallback = getDrawerCallback()
             if (drawerCallback != null) {
-                drawerAdapter.setCallback(drawerCallback)
+                mDrawerRecyclerAdapter.setCallback(drawerCallback)
             }
 
             adapter = drawerAdapter
@@ -92,6 +93,7 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        mDrawerRecyclerAdapter.clearCallback()
         AuthUtils.clearListener()
         super.onDestroy()
     }
@@ -116,7 +118,7 @@ abstract class BaseActivity : AppCompatActivity() {
         mDrawerLayout.setDrawerLockMode(newSwipeState)
     }
 
-    protected fun logout(){
+    protected fun logout() {
         val intent = Intent(this, LoginActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
@@ -124,24 +126,24 @@ abstract class BaseActivity : AppCompatActivity() {
         finish()
     }
 
-    protected fun startLoading(){
-        if (mLoadingModal == null){
+    protected fun startLoading() {
+        if (mLoadingModal == null) {
             mLoadingModal = LoadingModal(this)
         }
 
         mLoadingModal!!.show()
     }
 
-    protected fun finishLoading(){
-        if (mLoadingModal != null){
+    protected fun finishLoading() {
+        if (mLoadingModal != null) {
             mLoadingModal!!.dismiss()
             mLoadingModal = null
         }
     }
 
-    open fun getDrawerItemsList(): ArrayList<DrawerItem> {
-        return arrayListOf()
+    protected fun setItemSelection(item: Int, isSelected: Boolean) {
+        mDrawerRecyclerAdapter.setItemSelection(item, isSelected)
     }
 
-    abstract fun getDrawerCallback(): DrawerAdapter.Callback?
+    abstract fun getDrawerCallback(): SettingsDrawerAdapter.Callback?
 }

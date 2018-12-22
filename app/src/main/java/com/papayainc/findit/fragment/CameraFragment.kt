@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment
 import com.papayainc.findit.R
 import com.papayainc.findit.model.ScanResult
 import com.papayainc.findit.processors.ImageProcessor
+import com.papayainc.findit.utils.SharedPrefsUtils
 import io.fotoapparat.Fotoapparat
 import io.fotoapparat.configuration.CameraConfiguration
 import io.fotoapparat.configuration.UpdateConfiguration
@@ -33,6 +34,8 @@ import io.fotoapparat.view.CameraView
 class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCallback, ImageProcessor.Callback,
     View.OnClickListener {
     companion object {
+        val TAG = "[" + CameraFragment::class.java.simpleName + "]"
+
         fun getNewInstance(): CameraFragment {
             return CameraFragment()
         }
@@ -40,7 +43,7 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
 
     interface Callback {
         fun onGetImage(image: Bitmap, scanResult: ArrayList<ScanResult>)
-        fun onAutoFlashChanged(newState: Boolean)
+        fun onAutoFlashChanged(isAutoFlashEnabled: Boolean)
         fun onOpenDrawer()
     }
 
@@ -122,6 +125,8 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
         mImageProcessor.setCallback(this)
 
         configureInstances()
+        val userSettings = SharedPrefsUtils.unpackUserSettings()
+        setAutoFlash(userSettings.isAutoFlashEnabled)
     }
 
     private var mCallback: Callback? = null
@@ -143,7 +148,7 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
             scaleType = ScaleType.CenterCrop,    // (optional) we want the preview to fill the view
             lensPosition = back(),               // (optional) we want back camera
             cameraConfiguration = CameraConfiguration(autoFlash()),
-            cameraErrorCallback = { error -> Log.d("dbg", error.message) }   // (optional) log fatal errors
+            cameraErrorCallback = { error -> Log.e(TAG, error.message) }   // (optional) log fatal errors
         )
     }
 
@@ -160,7 +165,7 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
 
     private fun requestCameraPermission() {
         if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
-            ConfirmationDialog().show(childFragmentManager, "Dialog")
+            ConfirmationDialog().show(childFragmentManager, ConfirmationDialog.TAG)
         } else {
             requestPermissions(
                 arrayOf(Manifest.permission.CAMERA),
@@ -180,8 +185,24 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
         }
     }
 
+    fun setAutoFlash(isEnabled: Boolean){
+        mFotoapparat.updateConfiguration(
+            UpdateConfiguration(flashMode = if (isEnabled) autoFlash() else off())
+        )
+
+        flashMode = if (isEnabled) Flash.Auto else Flash.Off
+
+        if (mCallback != null){
+            mCallback!!.onAutoFlashChanged(flashMode == Flash.Auto)
+        }
+    }
+
 
     class ConfirmationDialog : DialogFragment() {
+        companion object {
+            val TAG = "[" + ConfirmationDialog::class.java.simpleName + "]"
+        }
+
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             val parent = parentFragment
             return AlertDialog.Builder(activity)

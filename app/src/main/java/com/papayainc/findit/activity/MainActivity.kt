@@ -6,7 +6,7 @@ import android.util.Log
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.papayainc.findit.R
-import com.papayainc.findit.adapter.DrawerAdapter
+import com.papayainc.findit.adapter.SettingsDrawerAdapter
 import com.papayainc.findit.adapter.MainActivityFragmentPagerAdapter
 import com.papayainc.findit.adapter.MainActivityFragmentPagerAdapter.Companion.CAMERA_FRAGMENT
 import com.papayainc.findit.adapter.MainActivityFragmentPagerAdapter.Companion.PROFILE_FRAGMENT
@@ -16,8 +16,11 @@ import com.papayainc.findit.fragment.ProfileFragment
 import com.papayainc.findit.modal.ScanResultModal
 import com.papayainc.findit.model.DrawerItem
 import com.papayainc.findit.model.ScanResult
+import com.papayainc.findit.utils.SharedPrefsUtils
 
-class MainActivity : BaseActivity(), CameraFragment.Callback, ProfileFragment.Callback {
+class MainActivity : BaseActivity(),
+    CameraFragment.Callback,
+    ProfileFragment.Callback {
     companion object {
         const val CAMERA_TAB = R.id.activity_main_menu_action
         const val PROFILE_TAB = R.id.activity_main_menu_profile
@@ -35,7 +38,6 @@ class MainActivity : BaseActivity(), CameraFragment.Callback, ProfileFragment.Ca
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(R.layout.activity_main)
         mFragmentPager = findViewById(R.id.activity_main_pager)
         mFragmentPager.addOnPageChangeListener(getOnPageChangeListener())
@@ -62,23 +64,13 @@ class MainActivity : BaseActivity(), CameraFragment.Callback, ProfileFragment.Ca
         scanResultModal.show()
     }
 
-    override fun onAutoFlashChanged(newState: Boolean) {
-        //Callback which calls after cameraPreview fragment successfully change auto flash mode
+    override fun onAutoFlashChanged(isAutoFlashEnabled: Boolean) {
+        setItemSelection(SettingsDrawerAdapter.SETTINGS_DRAWER_AUTO_FLASH, isAutoFlashEnabled)
+        SharedPrefsUtils.setCameraFlashMode(isAutoFlashEnabled)
     }
 
-    override fun getDrawerItemsList(): ArrayList<DrawerItem> {
-        return arrayListOf(
-            DrawerItem(
-                getString(R.string.drawer_auto_flash),
-                R.drawable.ic_flash_auto,
-                DrawerConstants.AUTO_FLASH,
-                false
-            )
-        )
-    }
-
-    override fun getDrawerCallback(): DrawerAdapter.Callback? {
-        return object : DrawerAdapter.Callback {
+    override fun getDrawerCallback(): SettingsDrawerAdapter.Callback? {
+        return object : SettingsDrawerAdapter.Callback {
             override fun onItemSelected(item: DrawerItem) {
                 when (item.itemType) {
                     DrawerConstants.AUTO_FLASH -> {

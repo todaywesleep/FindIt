@@ -2,23 +2,23 @@ package com.papayainc.findit.activity
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import com.google.android.gms.tasks.Task
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.AuthResult
 import com.papayainc.findit.R
-import com.papayainc.findit.adapter.DrawerAdapter
+import com.papayainc.findit.adapter.SettingsDrawerAdapter
 import com.papayainc.findit.constants.CommonConstants
 import com.papayainc.findit.modal.ErrorModal
 import com.papayainc.findit.utils.AuthUtils
 import com.papayainc.findit.utils.AuthUtils.Companion.authObj
+import com.papayainc.findit.utils.SharedPrefsUtils
 import com.papayainc.findit.view.MaterialInputField
 
 
 class LoginActivity : BaseActivity(), View.OnClickListener, AuthUtils.Companion.Callback {
-    override fun getDrawerCallback(): DrawerAdapter.Callback? {
+    override fun getDrawerCallback(): SettingsDrawerAdapter.Callback? {
         //Here is no drawer, just do nothing
         return null
     }
@@ -30,6 +30,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, AuthUtils.Companion.
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        SharedPrefsUtils.initSharedPrefs(this)
         setContentView(R.layout.activity_login)
 
         FirebaseApp.initializeApp(this)
