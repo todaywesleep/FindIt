@@ -5,29 +5,37 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import com.papayainc.findit.fragment.CameraFragment
 import com.papayainc.findit.fragment.ProfileFragment
+import com.papayainc.findit.fragment.TasksFragment
 
 class MainActivityFragmentPagerAdapter(
     fm: FragmentManager,
     val mCameraFragment: CameraFragment,
-    val profileFragment: ProfileFragment
+    val mProfileFragment: ProfileFragment,
+    val mTasksFragment: TasksFragment
 ) : FragmentStatePagerAdapter(fm) {
     companion object {
-        const val CAMERA_FRAGMENT = 0
-        const val PROFILE_FRAGMENT = 1
+        enum class Fragments (val idx: Int) {
+            FRAGMENT_PROFILE(0),
+            FRAGMENT_CAMERA(1),
+            FRAGMENT_TASKS(2)
+        }
     }
 
     override fun getItem(position: Int): Fragment {
         return when (position) {
-            CAMERA_FRAGMENT -> {
+            Fragments.FRAGMENT_PROFILE.idx -> {
+                mProfileFragment
+            }
+            Fragments.FRAGMENT_CAMERA.idx -> {
                 mCameraFragment
             }
             else -> {
-                profileFragment
+                mTasksFragment
             }
         }
     }
 
     override fun getCount(): Int {
-        return 2
+        return Fragments.values().size
     }
 }

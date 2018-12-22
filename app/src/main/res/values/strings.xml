@@ -31,4 +31,5 @@
 	<!--Menu-->
 	<string name="activity_main_menu_action">Action</string>
 	<string name="activity_main_menu_profile">Profile</string>
+	<string name="activity_main_menu_tasks">Tasks</string>
 </resources>

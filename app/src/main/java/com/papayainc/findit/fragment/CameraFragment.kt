@@ -36,7 +36,7 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
     companion object {
         val TAG = "[" + CameraFragment::class.java.simpleName + "]"
 
-        fun getNewInstance(): CameraFragment {
+        fun newInstance(): CameraFragment {
             return CameraFragment()
         }
     }

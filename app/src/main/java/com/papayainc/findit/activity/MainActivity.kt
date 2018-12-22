@@ -2,17 +2,15 @@ package com.papayainc.findit.activity
 
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.util.Log
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.papayainc.findit.R
 import com.papayainc.findit.adapter.SettingsDrawerAdapter
 import com.papayainc.findit.adapter.MainActivityFragmentPagerAdapter
-import com.papayainc.findit.adapter.MainActivityFragmentPagerAdapter.Companion.CAMERA_FRAGMENT
-import com.papayainc.findit.adapter.MainActivityFragmentPagerAdapter.Companion.PROFILE_FRAGMENT
 import com.papayainc.findit.constants.DrawerConstants
 import com.papayainc.findit.fragment.CameraFragment
 import com.papayainc.findit.fragment.ProfileFragment
+import com.papayainc.findit.fragment.TasksFragment
 import com.papayainc.findit.modal.ScanResultModal
 import com.papayainc.findit.model.DrawerItem
 import com.papayainc.findit.model.ScanResult
@@ -22,8 +20,9 @@ class MainActivity : BaseActivity(),
     CameraFragment.Callback,
     ProfileFragment.Callback {
     companion object {
-        const val CAMERA_TAB = R.id.activity_main_menu_action
-        const val PROFILE_TAB = R.id.activity_main_menu_profile
+        const val TAB_PROFILE = R.id.activity_main_menu_profile
+        const val TAB_CAMERA = R.id.activity_main_menu_action
+        const val TAB_TASKS = R.id.activity_main_menu_tasks
     }
 
     //Views
@@ -31,6 +30,7 @@ class MainActivity : BaseActivity(),
 
     private lateinit var mCameraFragment: CameraFragment
     private lateinit var mProfileFragment: ProfileFragment
+    private lateinit var mTasksFragment: TasksFragment
 
     private lateinit var mFragmentPager: ViewPager
     private lateinit var mFragmentPagerAdapter: MainActivityFragmentPagerAdapter
@@ -45,14 +45,19 @@ class MainActivity : BaseActivity(),
         mBottomNavigationBar = findViewById(R.id.activity_main_bottom_navigation)
         mBottomNavigationBar.setOnNavigationItemSelectedListener(getBottomNavigationItemsListener())
 
-        mCameraFragment = CameraFragment.getNewInstance()
+        mCameraFragment = CameraFragment.newInstance()
         mCameraFragment.setCallback(this)
         mProfileFragment = ProfileFragment.newInstance()
         mProfileFragment.setCallback(this)
+        mTasksFragment = TasksFragment.newInstance()
 
-        mFragmentPagerAdapter =
-                MainActivityFragmentPagerAdapter(supportFragmentManager, mCameraFragment, mProfileFragment)
+        mFragmentPagerAdapter = MainActivityFragmentPagerAdapter(
+                    supportFragmentManager,
+                    mCameraFragment,
+                    mProfileFragment,
+                    mTasksFragment)
         mFragmentPager.adapter = mFragmentPagerAdapter
+        mFragmentPager.currentItem = MainActivityFragmentPagerAdapter.Companion.Fragments.FRAGMENT_CAMERA.idx
 
         scanResultModal = ScanResultModal(this)
         setToolbarVisibility(false)
@@ -106,8 +111,9 @@ class MainActivity : BaseActivity(),
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
             override fun onPageSelected(position: Int) {
                 mBottomNavigationBar.selectedItemId = when (position) {
-                    CAMERA_FRAGMENT -> CAMERA_TAB
-                    else -> PROFILE_TAB
+                    MainActivityFragmentPagerAdapter.Companion.Fragments.FRAGMENT_CAMERA.idx -> TAB_CAMERA
+                    MainActivityFragmentPagerAdapter.Companion.Fragments.FRAGMENT_PROFILE.idx -> TAB_PROFILE
+                    else -> TAB_TASKS
                 }
             }
         }
@@ -117,11 +123,24 @@ class MainActivity : BaseActivity(),
         return BottomNavigationView.OnNavigationItemSelectedListener {
             when (it.itemId) {
                 R.id.activity_main_menu_action -> {
-                    mFragmentPager.setCurrentItem(CAMERA_FRAGMENT, true)
+                    mFragmentPager.setCurrentItem(
+                        MainActivityFragmentPagerAdapter.Companion.Fragments.FRAGMENT_CAMERA.idx,
+                        true
+                    )
                 }
 
                 R.id.activity_main_menu_profile -> {
-                    mFragmentPager.setCurrentItem(PROFILE_FRAGMENT, true)
+                    mFragmentPager.setCurrentItem(
+                        MainActivityFragmentPagerAdapter.Companion.Fragments.FRAGMENT_PROFILE.idx,
+                        true
+                    )
+                }
+
+                R.id.activity_main_menu_tasks -> {
+                    mFragmentPager.setCurrentItem(
+                        MainActivityFragmentPagerAdapter.Companion.Fragments.FRAGMENT_TASKS.idx,
+                        true
+                    )
                 }
             }
             true

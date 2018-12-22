@@ -28,22 +28,22 @@ class SettingsDrawerAdapter(var context: Context) : RecyclerView.Adapter<Setting
         this.data.addAll(getDrawerItems())
     }
 
-    fun setCallback(callback: Callback){
+    fun setCallback(callback: Callback) {
         this.mCallback = callback
     }
 
-    fun clearCallback(){
-        if (this.mCallback != null){
+    fun clearCallback() {
+        if (this.mCallback != null) {
             mCallback = null
         }
     }
 
-    fun setItemSelection(position: Int, isSelected: Boolean){
+    fun setItemSelection(position: Int, isSelected: Boolean) {
         data[position].isItemSelected = isSelected
         notifyItemChanged(position)
     }
 
-    private fun getDrawerItems(): ArrayList<DrawerItem>{
+    private fun getDrawerItems(): ArrayList<DrawerItem> {
         return arrayListOf(
             DrawerItem(
                 context.getString(R.string.drawer_auto_flash),
@@ -79,7 +79,7 @@ class SettingsDrawerAdapter(var context: Context) : RecyclerView.Adapter<Setting
             itemButton.setIconResource(itemData.imageRecourse!!)
         }
 
-        if (itemData.isItemSelected != null){
+        if (itemData.isItemSelected != null) {
             val newBGColor = if (itemData.isItemSelected!!) R.color.enabledButton else R.color.disabledButton
             itemButton.supportBackgroundTintList = ContextCompat.getColorStateList(context, newBGColor)
         }
@@ -89,7 +89,7 @@ class SettingsDrawerAdapter(var context: Context) : RecyclerView.Adapter<Setting
 
     private fun getOnItemClickListener(item: DrawerItem, position: Int): View.OnClickListener {
         return View.OnClickListener {
-            if (item.isItemSelected != null){
+            if (item.isItemSelected != null) {
                 item.isItemSelected = !item.isItemSelected!!
                 notifyItemChanged(position)
             }
@@ -103,7 +103,7 @@ class SettingsDrawerAdapter(var context: Context) : RecyclerView.Adapter<Setting
     class ViewHolder : RecyclerView.ViewHolder {
         var itemButton: MaterialButton
 
-        constructor(root: View): super(root){
+        constructor(root: View) : super(root) {
             itemButton = root.findViewById(R.id.drawer_item_button)
         }
     }
