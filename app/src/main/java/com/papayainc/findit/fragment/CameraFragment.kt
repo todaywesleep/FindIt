@@ -1,6 +1,7 @@
 package com.papayainc.findit.fragment
 
 import android.Manifest
+import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.pm.PackageManager
@@ -52,6 +53,8 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
     private lateinit var mGetImageButton: Button
     private lateinit var mFotoapparat: Fotoapparat
     private lateinit var mImageProcessor: ImageProcessor
+
+    private var isConfigured = true
 
     //Camera properties
     private var flashMode: Flash = Flash.Off
@@ -110,9 +113,12 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
     override fun onResume() {
         super.onResume()
         try {
+            if (!isConfigured){
+                configureInstances()
+            }
             mFotoapparat.start()
         } catch (error: Exception) {
-
+            Log.e(TAG, error.message)
         }
     }
 
@@ -153,7 +159,16 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
     }
 
     private fun configureInstances() {
-        val userSettings = SharedPrefsUtils.unpackUserSettings()
+        val userSettings = try {
+            SharedPrefsUtils.unpackUserSettings()
+        } catch (error: Exception) {
+            if (context is Activity) {
+                SharedPrefsUtils.initSharedPrefs(context as Activity)
+            }
+
+            SharedPrefsUtils.unpackUserSettings()
+        }
+
         flashMode = if (userSettings.isAutoFlashEnabled) Flash.Auto else Flash.Off
 
         mFotoapparat = Fotoapparat(
@@ -164,10 +179,13 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
             cameraConfiguration = CameraConfiguration(
                 if (userSettings.isAutoFlashEnabled) autoFlash() else off()
             ),
-            cameraErrorCallback = { error -> Log.e(TAG, error.message) }
+            cameraErrorCallback = { error ->
+                isConfigured = false
+                Log.e(TAG, error.message)
+            }
         )
 
-        if (mCallback != null){
+        if (mCallback != null) {
             mCallback!!.onAutoFlashChanged(flashMode == Flash.Auto)
         }
     }
@@ -184,14 +202,14 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
     }
 
     private fun requestCameraPermission() {
-        if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
-            ConfirmationDialog().show(childFragmentManager, ConfirmationDialog.TAG)
-        } else {
-            requestPermissions(
-                arrayOf(Manifest.permission.CAMERA),
-                0
-            )
-        }
+//        if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
+//            ConfirmationDialog().show(childFragmentManager, ConfirmationDialog.TAG)
+//        } else {
+        requestPermissions(
+            arrayOf(Manifest.permission.CAMERA),
+            0
+        )
+//        }
     }
 
     fun switchAutoFlash() {
