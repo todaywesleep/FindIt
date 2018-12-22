@@ -56,6 +56,7 @@ class MainActivity : BaseActivity(),
 
         scanResultModal = ScanResultModal(this)
         setToolbarVisibility(false)
+        setDrawerGestureState(false)
     }
 
     override fun onGetImage(image: Bitmap, scanResult: ArrayList<ScanResult>) {

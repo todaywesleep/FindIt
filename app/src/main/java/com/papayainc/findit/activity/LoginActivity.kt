@@ -30,9 +30,9 @@ class LoginActivity : BaseActivity(), View.OnClickListener, AuthUtils.Companion.
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        SharedPrefsUtils.initSharedPrefs(this)
         setContentView(R.layout.activity_login)
 
+        SharedPrefsUtils.initSharedPrefs(this)
         FirebaseApp.initializeApp(this)
         AuthUtils.setCallback(this)
 

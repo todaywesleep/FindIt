@@ -66,8 +66,21 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
                             if (bitmapPhoto != null) {
                                 val matrix = Matrix()
                                 matrix.postRotate(90f)
-                                val scaledBitmap = Bitmap.createScaledBitmap(bitmapPhoto.bitmap, bitmapPhoto.bitmap.width, bitmapPhoto.bitmap.height, true)
-                                val rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.width, scaledBitmap.height, matrix, true)
+                                val scaledBitmap = Bitmap.createScaledBitmap(
+                                    bitmapPhoto.bitmap,
+                                    bitmapPhoto.bitmap.width,
+                                    bitmapPhoto.bitmap.height,
+                                    true
+                                )
+                                val rotatedBitmap = Bitmap.createBitmap(
+                                    scaledBitmap,
+                                    0,
+                                    0,
+                                    scaledBitmap.width,
+                                    scaledBitmap.height,
+                                    matrix,
+                                    true
+                                )
 
                                 mImageProcessor.lookForLabels(rotatedBitmap)
                             }
@@ -125,8 +138,6 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
         mImageProcessor.setCallback(this)
 
         configureInstances()
-        val userSettings = SharedPrefsUtils.unpackUserSettings()
-        setAutoFlash(userSettings.isAutoFlashEnabled)
     }
 
     private var mCallback: Callback? = null
@@ -142,14 +153,23 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
     }
 
     private fun configureInstances() {
+        val userSettings = SharedPrefsUtils.unpackUserSettings()
+        flashMode = if (userSettings.isAutoFlashEnabled) Flash.Auto else Flash.Off
+
         mFotoapparat = Fotoapparat(
             context = context!!,
-            view = mCameraPreview,                   // view which will draw the camera preview
-            scaleType = ScaleType.CenterCrop,    // (optional) we want the preview to fill the view
-            lensPosition = back(),               // (optional) we want back camera
-            cameraConfiguration = CameraConfiguration(autoFlash()),
-            cameraErrorCallback = { error -> Log.e(TAG, error.message) }   // (optional) log fatal errors
+            view = mCameraPreview,
+            scaleType = ScaleType.CenterCrop,
+            lensPosition = back(),
+            cameraConfiguration = CameraConfiguration(
+                if (userSettings.isAutoFlashEnabled) autoFlash() else off()
+            ),
+            cameraErrorCallback = { error -> Log.e(TAG, error.message) }
         )
+
+        if (mCallback != null){
+            mCallback!!.onAutoFlashChanged(flashMode == Flash.Auto)
+        }
     }
 
     private fun requestPermissions() {
@@ -174,25 +194,13 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
         }
     }
 
-    fun switchAutoFlash(){
+    fun switchAutoFlash() {
         mFotoapparat.updateConfiguration(
             UpdateConfiguration(flashMode = if (flashMode == Flash.Off) autoFlash() else off())
         )
 
         flashMode = if (flashMode == Flash.Off) Flash.Auto else Flash.Off
-        if (mCallback != null){
-            mCallback!!.onAutoFlashChanged(flashMode == Flash.Auto)
-        }
-    }
-
-    fun setAutoFlash(isEnabled: Boolean){
-        mFotoapparat.updateConfiguration(
-            UpdateConfiguration(flashMode = if (isEnabled) autoFlash() else off())
-        )
-
-        flashMode = if (isEnabled) Flash.Auto else Flash.Off
-
-        if (mCallback != null){
+        if (mCallback != null) {
             mCallback!!.onAutoFlashChanged(flashMode == Flash.Auto)
         }
     }

@@ -2,7 +2,6 @@ package com.papayainc.findit.activity
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
@@ -115,7 +114,7 @@ abstract class BaseActivity : AppCompatActivity() {
         val newSwipeState =
             if (swipeAllowed) DrawerLayout.LOCK_MODE_LOCKED_OPEN else DrawerLayout.LOCK_MODE_LOCKED_CLOSED
 
-        mDrawerLayout.setDrawerLockMode(newSwipeState)
+        mDrawerLayout.setDrawerLockMode(newSwipeState, GravityCompat.START)
     }
 
     protected fun logout() {
