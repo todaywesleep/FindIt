@@ -25,9 +25,7 @@ class QuestsFragment : Fragment(), View.OnClickListener {
         }
     }
 
-    interface Callback {
-
-    }
+    interface Callback {}
 
     private var mCallback: Callback? = null
 
@@ -81,20 +79,20 @@ class QuestsFragment : Fragment(), View.OnClickListener {
             override fun onChildMoved(dataSnapshot: DataSnapshot, key: String?) {}
             override fun onChildChanged(dataSnapshot: DataSnapshot, key: String?) {}
             override fun onChildAdded(dataSnapshot: DataSnapshot, key: String?) {
-                Log.d("dbg", "added")
                 mQuestsRecyclerAdapter.addItem(
                     Quest(dataSnapshot.key!!, dataSnapshot.value.toString().toInt())
                 )
             }
 
             override fun onChildRemoved(dataSnapshot: DataSnapshot) {
-                Log.d("dbg", "removed")
                 mQuestsRecyclerAdapter.removeItem(
                     Quest(dataSnapshot.key!!, dataSnapshot.value.toString().toInt())
                 )
             }
 
-            override fun onCancelled(databaseError: DatabaseError) {}
+            override fun onCancelled(databaseError: DatabaseError) {
+                Log.e(TAG, "${databaseError.message} getQuestQueryListener")
+            }
         }
     }
 

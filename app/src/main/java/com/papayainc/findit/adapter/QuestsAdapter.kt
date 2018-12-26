@@ -34,8 +34,10 @@ class QuestsAdapter(private val data: ArrayList<Quest>) :
     }
 
     fun addItem(item: Quest) {
-        data.add(item)
-        notifyItemInserted(data.size)
+        if (!data.contains(item)){
+            data.add(item)
+            notifyItemInserted(data.size)
+        }
     }
 
     fun removeItem(item: Quest){
