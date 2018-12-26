@@ -1,12 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<androidx.constraintlayout.widget.ConstraintLayout
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:app="http://schemas.android.com/apk/res-auto"
+		android:orientation="vertical"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
+	
+	<TextView
+			android:visibility="gone"
+			android:id="@+id/fragment_quests_title"
+			android:paddingTop="@dimen/padding_default"
+			android:textSize="@dimen/common_title"
+			android:textColor="@color/color_text_dark"
+			android:textAlignment="center"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"/>
+	
+	<TextView
+			android:id="@+id/fragment_quests_quests_amount"
+			android:text="@string/fragment_quests_available_quests"
+			android:textColor="@color/color_text_dark"
+			android:textAlignment="center"
+			android:textSize="@dimen/text_small"
+			app:layout_constraintTop_toBottomOf="@id/fragment_quests_title"
+			android:padding="@dimen/padding_small"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"/>
 	
 	<androidx.recyclerview.widget.RecyclerView
+			app:layout_constraintTop_toBottomOf="@id/fragment_quests_quests_amount"
+			app:layout_constraintBottom_toTopOf="@id/fragment_quests_time_to_new_quest"
 			android:id="@+id/fragment_quests_recycler"
 			android:layout_width="match_parent"
-			android:layout_height="match_parent" />
-
-</LinearLayout>
+			android:layout_height="0dp"/>
+	
+	<TextView
+			app:layout_constraintBottom_toBottomOf="parent"
+			android:padding="@dimen/padding_small"
+			android:text="@string/fragment_quests_time_to_new_quest"
+			android:id="@+id/fragment_quests_time_to_new_quest"
+			android:textColor="@color/color_text_dark"
+			android:textAlignment="center"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

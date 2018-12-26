@@ -11,6 +11,12 @@ import com.papayainc.findit.model.Quest
 class QuestsAdapter(private val data: ArrayList<Quest>) :
     RecyclerView.Adapter<QuestsAdapter.ViewHolder>() {
 
+    interface Callback {
+        fun onItemsCountChange(newCount: Int)
+    }
+
+    private var mCallback: Callback? = null
+
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -33,15 +39,33 @@ class QuestsAdapter(private val data: ArrayList<Quest>) :
         val questReward: TextView = root.findViewById(R.id.fragment_quests_item_quest_reward)
     }
 
-    fun addItem(item: Quest) {
-        if (!data.contains(item)){
-            data.add(item)
-            notifyItemInserted(data.size)
+    fun setCallback(callback: Callback){
+        this.mCallback = callback
+    }
+
+    fun clearCallback(){
+        if (mCallback != null){
+            mCallback = null
         }
     }
 
-    fun removeItem(item: Quest){
+    fun addItem(item: Quest) {
+        if (!data.contains(item)) {
+            data.add(item)
+            notifyItemInserted(data.size)
+
+            if (mCallback != null){
+                mCallback!!.onItemsCountChange(data.size)
+            }
+        }
+    }
+
+    fun removeItem(item: Quest) {
         notifyItemRemoved(data.indexOf(item))
         data.remove(item)
+
+        if (mCallback != null){
+            mCallback!!.onItemsCountChange(data.size)
+        }
     }
 }

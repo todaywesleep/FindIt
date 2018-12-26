@@ -31,5 +31,10 @@
 	<!--Menu-->
 	<string name="activity_main_menu_action">Action</string>
 	<string name="activity_main_menu_profile">Profile</string>
-	<string name="activity_main_menu_tasks">Tasks</string>
+	<string name="activity_main_menu_quests">Quests</string>
+	
+	<!--QUESTS FRAGMENT-->
+	<string name="fragment_quests_time_to_new_quest">Time to new quest: </string>
+	<string name="fragment_quests_you_have_max_quests">You have maximum quests!</string>
+	<string name="fragment_quests_available_quests">You have %1$d of %2$d quests</string>
 </resources>
