@@ -1,6 +1,7 @@
 package com.papayainc.findit.utils
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 
 class AuthUtils {
     companion object {
@@ -26,6 +27,10 @@ class AuthUtils {
                     }
                 }
             }
+        }
+
+        fun getCurrentUser(): FirebaseUser? {
+            return authObj.currentUser
         }
 
         fun setCallback(callback: Callback) {

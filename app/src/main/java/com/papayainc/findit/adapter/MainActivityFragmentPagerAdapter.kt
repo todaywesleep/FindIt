@@ -5,13 +5,13 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import com.papayainc.findit.fragment.CameraFragment
 import com.papayainc.findit.fragment.ProfileFragment
-import com.papayainc.findit.fragment.TasksFragment
+import com.papayainc.findit.fragment.QuestsFragment
 
 class MainActivityFragmentPagerAdapter(
     fm: FragmentManager,
     val mCameraFragment: CameraFragment,
     val mProfileFragment: ProfileFragment,
-    val mTasksFragment: TasksFragment
+    val mQuestsFragment: QuestsFragment
 ) : FragmentStatePagerAdapter(fm) {
     companion object {
         enum class Fragments (val idx: Int) {
@@ -30,7 +30,7 @@ class MainActivityFragmentPagerAdapter(
                 mCameraFragment
             }
             else -> {
-                mTasksFragment
+                mQuestsFragment
             }
         }
     }

@@ -10,7 +10,7 @@ import com.papayainc.findit.adapter.MainActivityFragmentPagerAdapter
 import com.papayainc.findit.constants.DrawerConstants
 import com.papayainc.findit.fragment.CameraFragment
 import com.papayainc.findit.fragment.ProfileFragment
-import com.papayainc.findit.fragment.TasksFragment
+import com.papayainc.findit.fragment.QuestsFragment
 import com.papayainc.findit.modal.ScanResultModal
 import com.papayainc.findit.model.DrawerItem
 import com.papayainc.findit.model.ScanResult
@@ -30,7 +30,7 @@ class MainActivity : BaseActivity(),
 
     private lateinit var mCameraFragment: CameraFragment
     private lateinit var mProfileFragment: ProfileFragment
-    private lateinit var mTasksFragment: TasksFragment
+    private lateinit var mQuestsFragment: QuestsFragment
 
     private lateinit var mFragmentPager: ViewPager
     private lateinit var mFragmentPagerAdapter: MainActivityFragmentPagerAdapter
@@ -49,13 +49,13 @@ class MainActivity : BaseActivity(),
         mCameraFragment.setCallback(this)
         mProfileFragment = ProfileFragment.newInstance()
         mProfileFragment.setCallback(this)
-        mTasksFragment = TasksFragment.newInstance()
+        mQuestsFragment = QuestsFragment.newInstance()
 
         mFragmentPagerAdapter = MainActivityFragmentPagerAdapter(
                     supportFragmentManager,
                     mCameraFragment,
                     mProfileFragment,
-                    mTasksFragment)
+                    mQuestsFragment)
         mFragmentPager.adapter = mFragmentPagerAdapter
         mFragmentPager.currentItem = MainActivityFragmentPagerAdapter.Companion.Fragments.FRAGMENT_CAMERA.idx
 

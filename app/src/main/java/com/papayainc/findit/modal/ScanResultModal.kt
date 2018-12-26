@@ -1,7 +1,6 @@
 package com.papayainc.findit.modal
 
 import android.annotation.SuppressLint
-import android.app.Dialog
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
