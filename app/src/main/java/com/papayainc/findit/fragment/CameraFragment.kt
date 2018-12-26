@@ -202,14 +202,10 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
     }
 
     private fun requestCameraPermission() {
-//        if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
-//            ConfirmationDialog().show(childFragmentManager, ConfirmationDialog.TAG)
-//        } else {
         requestPermissions(
             arrayOf(Manifest.permission.CAMERA),
             0
         )
-//        }
     }
 
     fun switchAutoFlash() {
@@ -220,32 +216,6 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
         flashMode = if (flashMode == Flash.Off) Flash.Auto else Flash.Off
         if (mCallback != null) {
             mCallback!!.onAutoFlashChanged(flashMode == Flash.Auto)
-        }
-    }
-
-
-    class ConfirmationDialog : DialogFragment() {
-        companion object {
-            val TAG = "[" + ConfirmationDialog::class.java.simpleName + "]"
-        }
-
-        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-            val parent = parentFragment
-            return AlertDialog.Builder(activity)
-                .setMessage("Req")
-                .setPositiveButton(android.R.string.ok) { dialog, which ->
-                    parent!!.requestPermissions(
-                        arrayOf(Manifest.permission.CAMERA),
-                        0
-                    )
-                }
-                .setNegativeButton(
-                    android.R.string.cancel
-                ) { dialog, which ->
-                    val activity = parent!!.activity
-                    activity?.finish()
-                }
-                .create()
         }
     }
 }

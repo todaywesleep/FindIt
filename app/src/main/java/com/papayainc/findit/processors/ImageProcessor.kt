@@ -5,7 +5,7 @@ import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.cloud.FirebaseVisionCloudDetectorOptions
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.papayainc.findit.model.ScanResult
-import com.papayainc.findit.utils.FireBaseDatabase
+import com.papayainc.findit.utils.FireBaseDataBaseWorker
 
 class ImageProcessor {
     companion object {
@@ -45,7 +45,7 @@ class ImageProcessor {
                     labelsCollection[it.label] = it.label
                 }
 
-                FireBaseDatabase.writeLabels(labelsCollection)
+                FireBaseDataBaseWorker.writeLabels(labelsCollection)
                 if (mCallback != null)
                     mCallback!!.getImageLabels(bitmap, scanResult)
 
