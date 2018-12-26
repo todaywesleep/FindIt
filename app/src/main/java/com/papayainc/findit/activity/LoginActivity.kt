@@ -2,6 +2,7 @@ package com.papayainc.findit.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import com.google.android.gms.tasks.Task
 import com.google.android.material.button.MaterialButton
@@ -29,12 +30,13 @@ class LoginActivity : BaseActivity(), View.OnClickListener, AuthUtils.Companion.
     private lateinit var mRegisterButton: MaterialButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        AuthUtils.setCallback(this)
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
         SharedPrefsUtils.initSharedPrefs(this)
         FirebaseApp.initializeApp(this)
-        AuthUtils.setCallback(this)
 
         setToolbarVisibility(false)
 
@@ -45,7 +47,6 @@ class LoginActivity : BaseActivity(), View.OnClickListener, AuthUtils.Companion.
 
         setDrawerGestureState(false)
         setListeners()
-        renewSession()
     }
 
     private fun setListeners() {
@@ -129,5 +130,11 @@ class LoginActivity : BaseActivity(), View.OnClickListener, AuthUtils.Companion.
 
     private fun showError(message: String) {
         ErrorModal(this, message).show()
+    }
+
+    override fun onDestroy() {
+        AuthUtils.clearCallback()
+
+        super.onDestroy()
     }
 }

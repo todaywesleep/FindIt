@@ -93,7 +93,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         mDrawerRecyclerAdapter.clearCallback()
-        AuthUtils.clearListener()
+
         super.onDestroy()
     }
 
@@ -120,9 +120,10 @@ abstract class BaseActivity : AppCompatActivity() {
     protected fun logout() {
         val intent = Intent(this, LoginActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(intent)
         AuthUtils.authObj.signOut()
+
         finish()
+        startActivity(intent)
     }
 
     protected fun startLoading() {

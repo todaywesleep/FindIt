@@ -12,18 +12,27 @@ class AuthUtils {
 
         private val TAG = "[" + AuthUtils::class.java.simpleName + "]"
 
-        var authObj: FirebaseAuth
+        var authObj: FirebaseAuth = FirebaseAuth.getInstance()!!
         private var mCallback: Callback? = null
 
         init {
-            authObj = FirebaseAuth.getInstance()!!
+            authObj.addAuthStateListener { auth ->
+                if (auth.currentUser == null){
+
+                }else{
+                    if (mCallback != null){
+                        Log.d("dbg", "callback is here")
+                        mCallback!!.isLoginSuccessful(true, null)
+                    }
+                }
+            }
         }
 
         fun setCallback(callback: Callback) {
             this.mCallback = callback
         }
 
-        fun clearListener() {
+        fun clearCallback() {
             if (mCallback != null) mCallback = null
         }
 
@@ -47,11 +56,9 @@ class AuthUtils {
         }
 
         fun login(email: String, password: String) {
+            //Set only failure listener, because we have change auth obj state listener (login - there)
             authObj.signInWithEmailAndPassword(email, password).apply {
                 if (mCallback != null) {
-                    addOnSuccessListener {
-                        mCallback!!.isLoginSuccessful(true, null)
-                    }
                     addOnFailureListener {
                         mCallback!!.isLoginSuccessful(false, it.message)
                     }
