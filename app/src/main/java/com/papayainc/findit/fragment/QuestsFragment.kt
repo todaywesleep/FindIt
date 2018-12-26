@@ -1,6 +1,7 @@
 package com.papayainc.findit.fragment
 
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +18,8 @@ import com.papayainc.findit.adapter.QuestsAdapter
 import com.papayainc.findit.constants.CommonConstants
 import com.papayainc.findit.model.Quest
 import com.papayainc.findit.utils.FireBaseDataBaseWorker
+import java.util.*
+
 
 class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback {
     companion object {
@@ -60,12 +63,13 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
         FireBaseDataBaseWorker.setQuestsListener(mQuestsQueryListener)
 
         mQuestsCountLabel = view.findViewById(R.id.fragment_quests_quests_amount)
-        setQuestsCount(0)
         mTimeToNewQuestLabel = view.findViewById(R.id.fragment_quests_time_to_new_quest)
         mQuestsRecycler = view.findViewById(R.id.fragment_quests_recycler)
         mQuestsRecyclerLayoutManager = LinearLayoutManager(context)
         mQuestsRecyclerAdapter = QuestsAdapter(questList)
         mQuestsRecyclerAdapter.setCallback(this)
+        FireBaseDataBaseWorker.setLastCompletedQuestListener(getQuestQueryListener())
+        setQuestsCount(mQuestsRecyclerAdapter.itemCount)
 
         mQuestsRecycler.apply {
             setHasFixedSize(false)
@@ -89,6 +93,7 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
     override fun onDestroy() {
         FireBaseDataBaseWorker.resetQuestsListener(mQuestsQueryListener)
         mQuestsRecyclerAdapter.clearCallback()
+        clearCallback()
 
         super.onDestroy()
     }
@@ -96,17 +101,15 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
     private fun getQuestQueryListener(): ChildEventListener {
         return object : ChildEventListener {
             override fun onChildMoved(dataSnapshot: DataSnapshot, key: String?) {}
-            override fun onChildChanged(dataSnapshot: DataSnapshot, key: String?) {}
+            override fun onChildChanged(dataSnapshot: DataSnapshot, key: String?) {
+                Log.d("dbg", dataSnapshot.value.toString())
+            }
             override fun onChildAdded(dataSnapshot: DataSnapshot, key: String?) {
-                mQuestsRecyclerAdapter.addItem(
-                    Quest(dataSnapshot.key!!, dataSnapshot.value.toString().toInt())
-                )
+                Log.d("dbg", dataSnapshot.value.toString())
             }
 
             override fun onChildRemoved(dataSnapshot: DataSnapshot) {
-                mQuestsRecyclerAdapter.removeItem(
-                    Quest(dataSnapshot.key!!, dataSnapshot.value.toString().toInt())
-                )
+                Log.d("dbg", dataSnapshot.value.toString())
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -117,5 +120,40 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
 
     private fun setQuestsCount(count: Int){
         mQuestsCountLabel.text = resources.getString(R.string.fragment_quests_available_quests, count, CommonConstants.MAXIMUM_QUESTS_FOR_USER)
+    }
+
+    private fun getOnTimeToNewQuestListener(): ChildEventListener {
+        return object : ChildEventListener {
+            override fun onChildMoved(dataSnapshot: DataSnapshot, p1: String?) {}
+
+            override fun onChildChanged(dataSnapshot: DataSnapshot, p1: String?) {
+
+            }
+
+            override fun onChildAdded(dataSnapshot: DataSnapshot, p1: String?) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+            override fun onChildRemoved(dataSnapshot: DataSnapshot) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                Log.e(FireBaseDataBaseWorker.TAG, "${databaseError.message} setLastCompletedQuestListener")
+            }
+        }
+    }
+
+    private fun runQuestTimeHandler(){
+        val handler = Handler()
+        val delay = 1000L //milliseconds
+
+        handler.postDelayed(object : Runnable {
+            override fun run() {
+
+
+                handler.postDelayed(this, delay)
+            }
+        }, delay)
     }
 }
