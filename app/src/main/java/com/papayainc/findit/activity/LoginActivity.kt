@@ -75,10 +75,10 @@ class LoginActivity : BaseActivity(), View.OnClickListener, AuthUtils.Companion.
     override fun isLoginSuccessful(isSuccessful: Boolean, error: String?) {
         finishLoading()
 
-        if (isSuccessful && error == null) {
+        if (isSuccessful) {
             navigateToMainActivity()
-        } else {
-            showError(error!!)
+        } else if (!isSuccessful && error != null) {
+            showError(error)
         }
     }
 
@@ -92,10 +92,6 @@ class LoginActivity : BaseActivity(), View.OnClickListener, AuthUtils.Companion.
                 mPasswordInput.getText()
             )
         }
-    }
-
-    private fun renewSession() {
-        AuthUtils.renewSession()
     }
 
     private fun navigateToMainActivity() {

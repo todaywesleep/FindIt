@@ -18,14 +18,23 @@ class AuthUtils {
         init {
             authObj.addAuthStateListener { auth ->
                 if (auth.currentUser == null){
-
+                    mCallback!!.isLoginSuccessful(false, null)
                 }else{
                     if (mCallback != null){
-                        Log.d("dbg", "callback is here")
                         mCallback!!.isLoginSuccessful(true, null)
                     }
                 }
             }
+        }
+
+        private fun createUserWrite(){
+
+        }
+
+        private fun checkUserWriteAvailability(): Boolean {
+
+
+            return true
         }
 
         fun setCallback(callback: Callback) {

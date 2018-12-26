@@ -4,8 +4,8 @@ import android.graphics.Bitmap
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.cloud.FirebaseVisionCloudDetectorOptions
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
-import com.papayainc.findit.constants.FireBaseLearner
 import com.papayainc.findit.model.ScanResult
+import com.papayainc.findit.utils.FireBaseDatabase
 
 class ImageProcessor {
     companion object {
@@ -35,6 +35,7 @@ class ImageProcessor {
         if (!isDetectorBusy) {
             isDetectorBusy = true
             val firebaseImage = FirebaseVisionImage.fromBitmap(bitmap)
+
             detector.detectInImage(firebaseImage).addOnSuccessListener { it ->
                 val scanResult = arrayListOf<ScanResult>()
                 val labelsCollection = hashMapOf<String, String>()
@@ -44,7 +45,7 @@ class ImageProcessor {
                     labelsCollection[it.label] = it.label
                 }
 
-                FireBaseLearner.writeLabels(labelsCollection)
+                FireBaseDatabase.writeLabels(labelsCollection)
                 if (mCallback != null)
                     mCallback!!.getImageLabels(bitmap, scanResult)
 
