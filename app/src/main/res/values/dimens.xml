@@ -14,4 +14,6 @@
 	<dimen name="elevation_default">4dp</dimen>
 	
 	<dimen name="modal_title">20sp</dimen>
+	
+	<dimen name="card_title">18sp</dimen>
 </resources>

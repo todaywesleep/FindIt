@@ -2,10 +2,7 @@ package com.papayainc.findit.utils
 
 import android.util.Log
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.*
 import com.papayainc.findit.constants.CommonConstants
 import com.papayainc.findit.model.Quest
 import kotlin.random.Random
@@ -148,17 +145,26 @@ class FireBaseDataBaseWorker {
         }
 
         //Return type says is user exist & listener sets successfully
-        fun setQuestsListener(listener: ValueEventListener): Boolean {
-            val currentUser = AuthUtils.authObj.currentUser
+        fun setQuestsListener(listener: ChildEventListener): Boolean {
+            val currentUser = AuthUtils.getCurrentUser()
 
             if (currentUser != null) {
                 database.child(TABLE_USERS).child(currentUser.uid).child(TABLE_USER_QUESTS)
-                    .addValueEventListener(listener)
+                    .addChildEventListener(listener)
 
                 return true
             }
 
             return false
+        }
+
+        fun resetQuestsListener(listener: ChildEventListener){
+            val currentUser = AuthUtils.getCurrentUser()
+
+            if (currentUser != null) {
+                database.child(TABLE_USERS).child(currentUser.uid).child(TABLE_USER_QUESTS)
+                    .removeEventListener(listener)
+            }
         }
     }
 }
