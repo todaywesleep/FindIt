@@ -18,7 +18,8 @@ class FireBaseDataBaseWorker {
         private const val TABLE_USER_QUESTS = "quests"
         private const val TABLE_COMPLETED_QUESTS = "completed_quests"
 
-        private const val FIELD_EXPERIENCE = "experience"
+        private const val FIELD_USER_EXPERIENCE = "experience"
+        private const val FIELD_USER_CREDITS = "credits"
         private const val FIELD_LEVEL = "level"
         private const val FIELD_LAST_REQUEST_QUEST_TIME = "last_request_quest_time"
 
@@ -63,7 +64,8 @@ class FireBaseDataBaseWorker {
                         val userDatabaseReference = databaseReference.child(uid)
 
                         userDatabaseReference.child(TABLE_USER_QUESTS).setValue(null)
-                        userDatabaseReference.child(FIELD_EXPERIENCE).setValue(0)
+                        userDatabaseReference.child(FIELD_USER_EXPERIENCE).setValue(0)
+                        userDatabaseReference.child(FIELD_USER_CREDITS).setValue(0)
                         userDatabaseReference.child(FIELD_LEVEL).setValue(0)
                         requestQuest(CommonConstants.INITIAL_QUESTS_AMOUNT)
                     } else {
@@ -259,7 +261,8 @@ class FireBaseDataBaseWorker {
                     .addListenerForSingleValueEvent(object : ValueEventListener {
                         override fun onDataChange(dataSnapshot: DataSnapshot) {
                             if (dataSnapshot.exists()){
-                                val completedQuests = arrayListOf<String>()
+                                val completedQuests = arrayListOf<Quest>()
+                                var creditsToAdd = 0
                                 val iterator = dataSnapshot.children.iterator()
 
                                 while (iterator.hasNext()){
@@ -267,9 +270,31 @@ class FireBaseDataBaseWorker {
 
                                     if (items.contains(currentItem.key)){
                                         if (currentItem.exists() && currentItem.key != null){
-                                            completedQuests.add(currentItem.key!!)
+                                            val creditsForQuest = currentItem.value.toString().toInt()
+                                            creditsToAdd += creditsForQuest
+                                            completedQuests.add(Quest(currentItem.key.toString(), creditsForQuest))
+
+                                            database.child(TABLE_USERS).child(currentUser.uid).child(TABLE_USER_QUESTS)
+                                                .child(currentItem.key.toString()).removeValue()
                                         }
                                     }
+                                }
+
+                                if (creditsToAdd > 0){
+                                    database.child(TABLE_USERS).child(currentUser.uid).child(FIELD_USER_CREDITS)
+                                        .addListenerForSingleValueEvent(object : ValueEventListener {
+                                            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                                                val oldValue = dataSnapshot.value?.toString()?.toInt() ?: 0
+
+                                                database.child(TABLE_USERS).child(currentUser.uid).child(FIELD_USER_CREDITS).setValue(oldValue + creditsToAdd)
+                                            }
+
+                                            override fun onCancelled(databaseError: DatabaseError) {
+                                                Log.e(TAG, "${databaseError.message} getCompletedQuest $FIELD_USER_CREDITS")
+                                            }
+                                        })
+
+
                                 }
                             }else{
                                 callback.isQuestCompleted(false, null)

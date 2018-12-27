@@ -195,11 +195,11 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
                 dateToSubtract -= 1000
                 if (mQuestsCount < CommonConstants.MAXIMUM_QUESTS_FOR_USER){
                     setDateToQuest(hours, minutes, seconds % 60)
-                }
 
-                if (dateToSubtract <= 0) {
-                    FireBaseDataBaseWorker.requestQuest(1)
-                    stopQuestsTimerAndSetLabel(true)
+                    if (dateToSubtract <= 0) {
+                        FireBaseDataBaseWorker.requestQuest(1)
+                        stopQuestsTimerAndSetLabel(true)
+                    }
                 }
 
                 if (mTimer != null) {

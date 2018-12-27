@@ -4,12 +4,15 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.papayainc.findit.R
+import com.papayainc.findit.model.Quest
 import com.papayainc.findit.model.ScanResult
+import com.papayainc.findit.utils.FireBaseDataBaseWorker
 import kotlin.math.roundToInt
 
 class ScanResultModal(context: Context) : BaseModal(context) {
@@ -41,7 +44,17 @@ class ScanResultModal(context: Context) : BaseModal(context) {
     fun setScanResult(image: Bitmap, scanResult: ArrayList<ScanResult>){
         takenImage.setImageBitmap(image)
 
+        FireBaseDataBaseWorker.getCompletedQuest(scanResult.map {
+            it.label
+        } as ArrayList<String>, object : FireBaseDataBaseWorker.Companion.IsQuestCompletedCallback {
+            override fun isQuestCompleted(isCompleted: Boolean, quests: ArrayList<Quest>?) {
+                Log.d("dbg", isCompleted.toString())
 
+                quests?.forEach {
+                    Log.d("dbg", it.item_to_search)
+                }
+            }
+        })
 
         scanResult.forEach { item ->
             val textView = TextView(context)
