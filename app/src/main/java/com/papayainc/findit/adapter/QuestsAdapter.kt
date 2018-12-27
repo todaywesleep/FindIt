@@ -68,4 +68,9 @@ class QuestsAdapter(private val data: ArrayList<Quest>) :
             mCallback!!.onItemsCountChange(data.size)
         }
     }
+
+    fun clearData(){
+        data.clear()
+        notifyDataSetChanged()
+    }
 }

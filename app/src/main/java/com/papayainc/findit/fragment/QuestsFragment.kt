@@ -33,7 +33,6 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
     }
 
     interface Callback {}
-
     private var mCallback: Callback? = null
 
     private lateinit var mQuestsRecycler: RecyclerView
@@ -115,6 +114,11 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
         super.onDestroy()
     }
 
+    override fun onDetach() {
+        super.onDetach()
+        mQuestsRecyclerAdapter.clearData()
+    }
+
     private fun getQuestQueryListener(): ChildEventListener {
         return object : ChildEventListener {
             override fun onChildMoved(dataSnapshot: DataSnapshot, key: String?) {}
@@ -151,11 +155,13 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
     }
 
     private fun setQuestsCount(count: Int) {
-        mQuestsCountLabel.text = resources.getString(
-            R.string.fragment_quests_available_quests,
-            count,
-            CommonConstants.MAXIMUM_QUESTS_FOR_USER
-        )
+        if (isVisible) {
+            mQuestsCountLabel.text = resources.getString(
+                R.string.fragment_quests_available_quests,
+                count,
+                CommonConstants.MAXIMUM_QUESTS_FOR_USER
+            )
+        }
     }
 
     private fun getOnTimeToNewQuestListener(): ValueEventListener {
@@ -207,13 +213,15 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
     }
 
     private fun setDateToQuest(hours: Long, minutes: Long, seconds: Long) {
-        mTimeToNewQuestLabel.text =
-                resources.getString(
-                    R.string.fragment_quests_time_to_new_quest,
-                    hours,
-                    minutes,
-                    seconds
-                )
+        if (isVisible) {
+            mTimeToNewQuestLabel.text =
+                    resources.getString(
+                        R.string.fragment_quests_time_to_new_quest,
+                        hours,
+                        minutes,
+                        seconds
+                    )
+        }
     }
 
     private fun stopQuestsTimerAndSetLabel() {
@@ -222,6 +230,8 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
             mTimer = null
         }
 
-        mTimeToNewQuestLabel.text = getString(R.string.fragment_quests_you_have_max_quests)
+        if (isVisible) {
+            mTimeToNewQuestLabel.text = getString(R.string.fragment_quests_you_have_max_quests)
+        }
     }
 }
