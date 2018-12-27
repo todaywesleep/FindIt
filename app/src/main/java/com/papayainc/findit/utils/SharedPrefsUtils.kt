@@ -37,5 +37,18 @@ class SharedPrefsUtils {
                 SharedPrefsConstants.SETTINGS_AUTO_FLASH_DEFAULT
             )
         }
+
+        fun setCompletedQuestsAmount(amount: Int){
+            val editor = sharedPrefs.edit()
+            editor.putInt(SharedPrefsConstants.USER_COMPLETED_QUESTS_AMOUNT, amount)
+            editor.apply()
+        }
+
+        fun getUserCompletedQuestsAmount(): Int{
+            return sharedPrefs.getInt(
+                SharedPrefsConstants.USER_COMPLETED_QUESTS_AMOUNT,
+                SharedPrefsConstants.USER_COMPLETED_QUESTS_AMOUNT_DEFAULT
+            )
+        }
     }
 }

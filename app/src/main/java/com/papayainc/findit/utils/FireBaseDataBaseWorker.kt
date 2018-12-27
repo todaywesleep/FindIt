@@ -78,6 +78,8 @@ class FireBaseDataBaseWorker {
             if (currentUser != null) {
                 val userReference = database.child(TABLE_USERS)
                 val possibleQuestsReference = database.child(TABLE_POSSIBLE_LABELS)
+                val completedQuestsReference = database.child(TABLE_USERS).child(currentUser.uid)
+                    .child(TABLE_COMPLETED_QUESTS)
 
                 //Request current user quests table
                 userReference.child(currentUser.uid).child(TABLE_USER_QUESTS)
@@ -95,46 +97,68 @@ class FireBaseDataBaseWorker {
                                 }
                             }
 
-                            //Later go to possibleLabels to create new quest for User
-                            possibleQuestsReference.addListenerForSingleValueEvent(object : ValueEventListener {
+                            //And also get completed quests collection
+                            completedQuestsReference.addListenerForSingleValueEvent(object : ValueEventListener {
                                 override fun onDataChange(dataSnapshot: DataSnapshot) {
-                                    var requestedQuests = 0
+                                    val completedQuestsMap = hashMapOf<String, String>()
 
-                                    fun getRandomQuest() {
-                                        val labelsCount = dataSnapshot.childrenCount
-                                        val randomQuestIdx = Random.nextInt(0, labelsCount.toInt() - 1)
+                                    if (!dataSnapshot.exists()){
+                                        completedQuestsReference.setValue(completedQuestsMap)
+                                    }else{
+                                        val completedQuestsIterator = dataSnapshot.children.iterator()
+                                        while (completedQuestsIterator.hasNext()){
+                                            val child = completedQuestsIterator.next()
+                                            completedQuestsMap[child.key!!] = child.value.toString()
+                                        }
+                                    }
+                                    //Set new completed quests counter
+                                    SharedPrefsUtils.setCompletedQuestsAmount(completedQuestsMap.size)
+                                    //Later go to possibleLabels to create new quest for User
+                                    possibleQuestsReference.addListenerForSingleValueEvent(object : ValueEventListener {
+                                        override fun onDataChange(dataSnapshot: DataSnapshot) {
+                                            var requestedQuests = 0
 
-                                        val iterator = dataSnapshot.children.iterator()
-                                        for (i in 0..randomQuestIdx) {
-                                            if (i == randomQuestIdx) {
-                                                break
+                                            fun getRandomQuest() {
+                                                val labelsCount = dataSnapshot.childrenCount
+                                                val randomQuestIdx = Random.nextInt(0, labelsCount.toInt() - 1)
+
+                                                val iterator = dataSnapshot.children.iterator()
+                                                for (i in 0..randomQuestIdx) {
+                                                    if (i == randomQuestIdx) {
+                                                        break
+                                                    }
+
+                                                    iterator.next()
+                                                }
+
+                                                val childSnap = iterator.next() as DataSnapshot
+                                                if (!userQuestsList.contains(childSnap.key)) {
+                                                    val questAward = Random.nextInt(
+                                                        CommonConstants.MINIMUM_QUEST_REWARD,
+                                                        CommonConstants.MAXIMUM_QUEST_REWARD
+                                                    )
+
+                                                    writeQuestToUserQuests(
+                                                        Quest(childSnap.key!!, questAward),
+                                                        currentUser
+                                                    )
+                                                } else {
+                                                    getRandomQuest()
+                                                }
                                             }
 
-                                            iterator.next()
+                                            while (requestedQuests < amount && userQuestsList.size + requestedQuests < CommonConstants.MAXIMUM_QUESTS_FOR_USER) {
+                                                getRandomQuest()
+                                                requestedQuests++
+                                            }
+
+                                            setRequestQuestTime(Date().time)
                                         }
 
-                                        val childSnap = iterator.next() as DataSnapshot
-                                        if (!userQuestsList.contains(childSnap.key)) {
-                                            val questAward = Random.nextInt(
-                                                CommonConstants.MINIMUM_QUEST_REWARD,
-                                                CommonConstants.MAXIMUM_QUEST_REWARD
-                                            )
-
-                                            writeQuestToUserQuests(
-                                                Quest(childSnap.key!!, questAward),
-                                                currentUser
-                                            )
-                                        } else {
-                                            getRandomQuest()
+                                        override fun onCancelled(databaseError: DatabaseError) {
+                                            Log.e(TAG, "${databaseError.message} requestQuest")
                                         }
-                                    }
-
-                                    while (requestedQuests < amount && userQuestsList.size + requestedQuests < CommonConstants.MAXIMUM_QUESTS_FOR_USER){
-                                        getRandomQuest()
-                                        requestedQuests++
-                                    }
-
-                                    setRequestQuestTime(Date().time)
+                                    })
                                 }
 
                                 override fun onCancelled(databaseError: DatabaseError) {
@@ -201,7 +225,7 @@ class FireBaseDataBaseWorker {
             }
         }
 
-        fun setRequestQuestTime(date: Long){
+        fun setRequestQuestTime(date: Long) {
             val currentUser = AuthUtils.getCurrentUser()
 
             if (currentUser != null) {

@@ -41,6 +41,8 @@ class ScanResultModal(context: Context) : BaseModal(context) {
     fun setScanResult(image: Bitmap, scanResult: ArrayList<ScanResult>){
         takenImage.setImageBitmap(image)
 
+
+
         scanResult.forEach { item ->
             val textView = TextView(context)
             textView.text = item.label + " - " + (item.percentage * 100).roundToInt().toString() + "%"
