@@ -44,7 +44,7 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
     private lateinit var mQuestsQueryListener: ChildEventListener
     private lateinit var mTimeToNewQuestListener: ValueEventListener
 
-    private var isQuestsFilled = false
+    private var mQuestsCount = 0
 
     private var mTimer: Handler? = null
     private var mTimerTask: Runnable? = null
@@ -78,7 +78,6 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
         mQuestsRecyclerLayoutManager = LinearLayoutManager(context)
         mQuestsRecyclerAdapter = QuestsAdapter(questList)
         mQuestsRecyclerAdapter.setCallback(this)
-        setQuestsCount(mQuestsRecyclerAdapter.itemCount)
 
         mQuestsRecycler.apply {
             setHasFixedSize(false)
@@ -96,13 +95,11 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
     }
 
     override fun onItemsCountChange(newCount: Int) {
-        setQuestsCount(newCount)
+        mQuestsCount = newCount
+        setQuestsCount()
 
-        if (newCount == CommonConstants.MAXIMUM_QUESTS_FOR_USER) {
-            isQuestsFilled = true
-            stopQuestsTimerAndSetLabel()
-        } else {
-            isQuestsFilled = false
+        if (mQuestsCount == CommonConstants.MAXIMUM_QUESTS_FOR_USER) {
+            stopQuestsTimerAndSetLabel(false)
         }
     }
 
@@ -154,11 +151,11 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
         }
     }
 
-    private fun setQuestsCount(count: Int) {
+    private fun setQuestsCount() {
         if (isVisible) {
             mQuestsCountLabel.text = resources.getString(
                 R.string.fragment_quests_available_quests,
-                count,
+                mQuestsCount,
                 CommonConstants.MAXIMUM_QUESTS_FOR_USER
             )
         }
@@ -171,12 +168,9 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
                 val minutesBetweenDates = CommonUtils.getMinutesBetweenDates(Date().time, lastRequestQuestDate)
                 val questsToRequest = minutesBetweenDates / 60
 
+                runQuestTimeHandler(lastRequestQuestDate)
                 if (questsToRequest > 0) {
                     FireBaseDataBaseWorker.requestQuest(questsToRequest.toInt())
-                }
-
-                if (!isQuestsFilled) {
-                    runQuestTimeHandler(dataSnapshot.value.toString().toLong())
                 }
             }
 
@@ -187,11 +181,11 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
     }
 
     private fun runQuestTimeHandler(lastQuestDate: Long) {
-        val delay = 1000L //milliseconds
+        val delay = 1000L
 
         mTimer = Handler()
         mTimerTask = object : Runnable {
-            var dateToSubtract = CommonConstants.TIME_HOUR - (Date().time - lastQuestDate)
+            var dateToSubtract = CommonConstants.TIME_MINUTE - (Date().time - lastQuestDate)
 
             override fun run() {
                 val seconds = dateToSubtract / 1000
@@ -199,13 +193,18 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
                 val hours = minutes / 60 % 60
 
                 dateToSubtract -= 1000
-                setDateToQuest(hours, minutes, seconds % 60)
-
-                if (dateToSubtract <= 0){
-                    FireBaseDataBaseWorker.requestQuest(1)
+                if (mQuestsCount < CommonConstants.MAXIMUM_QUESTS_FOR_USER){
+                    setDateToQuest(hours, minutes, seconds % 60)
                 }
 
-                mTimer!!.postDelayed(this, delay)
+                if (dateToSubtract <= 0) {
+                    FireBaseDataBaseWorker.requestQuest(1)
+                    stopQuestsTimerAndSetLabel(true)
+                }
+
+                if (mTimer != null) {
+                    mTimer!!.postDelayed(this, delay)
+                }
             }
         }
 
@@ -224,14 +223,17 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
         }
     }
 
-    private fun stopQuestsTimerAndSetLabel() {
+    private fun stopQuestsTimerAndSetLabel(isLoading: Boolean) {
         if (mTimer != null) {
             mTimer!!.removeCallbacks(mTimerTask)
+            mTimerTask = null
             mTimer = null
         }
 
+        val text = if (isLoading) getString(R.string.loading) else getString(R.string.fragment_quests_you_have_max_quests)
+
         if (isVisible) {
-            mTimeToNewQuestLabel.text = getString(R.string.fragment_quests_you_have_max_quests)
+            mTimeToNewQuestLabel.text = text
         }
     }
 }

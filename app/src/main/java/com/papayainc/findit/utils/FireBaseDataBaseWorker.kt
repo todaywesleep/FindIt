@@ -6,6 +6,7 @@ import com.google.firebase.database.*
 import com.papayainc.findit.constants.CommonConstants
 import com.papayainc.findit.model.Quest
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.random.Random
 
 class FireBaseDataBaseWorker {
@@ -22,6 +23,10 @@ class FireBaseDataBaseWorker {
         private const val FIELD_LAST_REQUEST_QUEST_TIME = "last_request_quest_time"
 
         private val database = FirebaseDatabase.getInstance().reference
+
+        interface IsQuestCompletedCallback{
+            fun isQuestCompleted(isCompleted: Boolean, quests: ArrayList<Quest>?)
+        }
 
         fun writeLabels(labels: HashMap<String, String>) {
             val databaseReference = database.child(TABLE_POSSIBLE_LABELS)
@@ -147,9 +152,11 @@ class FireBaseDataBaseWorker {
                                                 }
                                             }
 
-                                            while (requestedQuests < amount && userQuestsList.size + requestedQuests < CommonConstants.MAXIMUM_QUESTS_FOR_USER) {
+                                            var userQuestsSize = userQuestsList.size
+                                            while (requestedQuests < amount && userQuestsSize + requestedQuests < CommonConstants.MAXIMUM_QUESTS_FOR_USER) {
                                                 getRandomQuest()
                                                 requestedQuests++
+                                                userQuestsSize++
                                             }
 
                                             setRequestQuestTime(Date().time)
@@ -202,6 +209,15 @@ class FireBaseDataBaseWorker {
             }
         }
 
+        fun resetLastCompletedQuestListener(listener: ValueEventListener){
+            val activeUser = AuthUtils.getCurrentUser()
+
+            if (activeUser != null){
+                database.child(TABLE_USERS).child(activeUser.uid).child(FIELD_LAST_REQUEST_QUEST_TIME)
+                    .removeEventListener(listener)
+            }
+        }
+
         //Return type says is user exist & listener sets successfully
         fun setQuestsListener(listener: ChildEventListener): Boolean {
             val currentUser = AuthUtils.getCurrentUser()
@@ -231,6 +247,39 @@ class FireBaseDataBaseWorker {
             if (currentUser != null) {
                 database.child(TABLE_USERS).child(currentUser.uid).child(FIELD_LAST_REQUEST_QUEST_TIME)
                     .setValue(date)
+            }
+        }
+
+        //Here we take scanned item name and compare it with actual quests list
+        fun getCompletedQuest(items: ArrayList<String>, callback: IsQuestCompletedCallback) {
+            val currentUser = AuthUtils.getCurrentUser()
+
+            if (currentUser != null){
+                database.child(TABLE_USERS).child(currentUser.uid).child(TABLE_USER_QUESTS)
+                    .addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(dataSnapshot: DataSnapshot) {
+                            if (dataSnapshot.exists()){
+                                val completedQuests = arrayListOf<String>()
+                                val iterator = dataSnapshot.children.iterator()
+
+                                while (iterator.hasNext()){
+                                    val currentItem = iterator.next()
+
+                                    if (items.contains(currentItem.key)){
+                                        if (currentItem.exists() && currentItem.key != null){
+                                            completedQuests.add(currentItem.key!!)
+                                        }
+                                    }
+                                }
+                            }else{
+                                callback.isQuestCompleted(false, null)
+                            }
+                        }
+
+                        override fun onCancelled(databaseError: DatabaseError) {
+                            Log.e(TAG, "${databaseError.message} getCompletedQuest")
+                        }
+                    })
             }
         }
     }
