@@ -19,7 +19,7 @@ class FireBaseDataBaseWorker {
 
         private const val FIELD_EXPERIENCE = "experience"
         private const val FIELD_LEVEL = "level"
-        private const val FIELD_LAST_QUEST_TIME = "last_quest_time"
+        private const val FIELD_LAST_REQUEST_QUEST_TIME = "last_request_quest_time"
 
         private val database = FirebaseDatabase.getInstance().reference
 
@@ -60,9 +60,9 @@ class FireBaseDataBaseWorker {
                         userDatabaseReference.child(TABLE_USER_QUESTS).setValue(null)
                         userDatabaseReference.child(FIELD_EXPERIENCE).setValue(0)
                         userDatabaseReference.child(FIELD_LEVEL).setValue(0)
+                        requestQuest(CommonConstants.INITIAL_QUESTS_AMOUNT)
                     } else {
                         Log.d(TAG, "User exist, skip init process")
-                        requestQuest()
                     }
                 }
 
@@ -72,7 +72,7 @@ class FireBaseDataBaseWorker {
             })
         }
 
-        fun requestQuest() {
+        fun requestQuest(amount: Int) {
             val currentUser = AuthUtils.getCurrentUser()
 
             if (currentUser != null) {
@@ -98,6 +98,8 @@ class FireBaseDataBaseWorker {
                             //Later go to possibleLabels to create new quest for User
                             possibleQuestsReference.addListenerForSingleValueEvent(object : ValueEventListener {
                                 override fun onDataChange(dataSnapshot: DataSnapshot) {
+                                    var requestedQuests = 0
+
                                     fun getRandomQuest() {
                                         val labelsCount = dataSnapshot.childrenCount
                                         val randomQuestIdx = Random.nextInt(0, labelsCount.toInt() - 1)
@@ -127,8 +129,12 @@ class FireBaseDataBaseWorker {
                                         }
                                     }
 
-//                                    TODO: IMPORTANT!!! Uncomment to enable quest generation
-//                                    getRandomQuest()
+                                    while (requestedQuests < amount && userQuestsList.size + requestedQuests < CommonConstants.MAXIMUM_QUESTS_FOR_USER){
+                                        getRandomQuest()
+                                        requestedQuests++
+                                    }
+
+                                    setRequestQuestTime(Date().time)
                                 }
 
                                 override fun onCancelled(databaseError: DatabaseError) {
@@ -149,25 +155,16 @@ class FireBaseDataBaseWorker {
                 .child(quest.item_to_search).setValue(quest.reward)
         }
 
-        fun setLastCompletedQuestListener(listener: ChildEventListener) {
+        fun setLastCompletedQuestListener(listener: ValueEventListener) {
             val activeUser = AuthUtils.getCurrentUser()
 
             if (activeUser != null) {
-                database.child(TABLE_USERS).child(activeUser.uid).child(FIELD_LAST_QUEST_TIME)
+                database.child(TABLE_USERS).child(activeUser.uid).child(FIELD_LAST_REQUEST_QUEST_TIME)
                     .addListenerForSingleValueEvent(object : ValueEventListener {
                         override fun onDataChange(dataSnapshot: DataSnapshot) {
-                            if (dataSnapshot.exists()) {
-                                Log.d("dbg", dataSnapshot.key)
-                                Log.d("dbg", dataSnapshot.value.toString())
-                                database.child(TABLE_USERS).child(activeUser.uid).child(FIELD_LAST_QUEST_TIME)
-                                    .addChildEventListener(listener)
-                            } else {
-                                database.child(TABLE_USERS).child(activeUser.uid).child(FIELD_LAST_QUEST_TIME)
-                                    .setValue(Date().toString())
-                                    .addOnCompleteListener {
-                                        database.child(TABLE_USERS).child(activeUser.uid).child(FIELD_LAST_QUEST_TIME)
-                                            .addChildEventListener(listener)
-                                    }
+                            if (!dataSnapshot.exists()) {
+                                database.child(TABLE_USERS).child(activeUser.uid).child(FIELD_LAST_REQUEST_QUEST_TIME)
+                                    .setValue(Date().time)
                             }
                         }
 
@@ -175,9 +172,10 @@ class FireBaseDataBaseWorker {
                             Log.d(TAG, "${databaseError.message} writeQuestToUserQuests")
                         }
                     })
-            }
 
-//                .addChildEventListener(listener)
+                database.child(TABLE_USERS).child(activeUser.uid).child(FIELD_LAST_REQUEST_QUEST_TIME)
+                    .addValueEventListener(listener)
+            }
         }
 
         //Return type says is user exist & listener sets successfully
@@ -200,6 +198,15 @@ class FireBaseDataBaseWorker {
             if (currentUser != null) {
                 database.child(TABLE_USERS).child(currentUser.uid).child(TABLE_USER_QUESTS)
                     .removeEventListener(listener)
+            }
+        }
+
+        fun setRequestQuestTime(date: Long){
+            val currentUser = AuthUtils.getCurrentUser()
+
+            if (currentUser != null) {
+                database.child(TABLE_USERS).child(currentUser.uid).child(FIELD_LAST_REQUEST_QUEST_TIME)
+                    .setValue(date)
             }
         }
     }

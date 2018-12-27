@@ -13,10 +13,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 import com.papayainc.findit.R
 import com.papayainc.findit.adapter.QuestsAdapter
 import com.papayainc.findit.constants.CommonConstants
 import com.papayainc.findit.model.Quest
+import com.papayainc.findit.utils.CommonUtils
 import com.papayainc.findit.utils.FireBaseDataBaseWorker
 import java.util.*
 
@@ -39,7 +41,13 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
     private lateinit var mTimeToNewQuestLabel: TextView
     private lateinit var mQuestsRecyclerAdapter: QuestsAdapter
     private lateinit var mQuestsRecyclerLayoutManager: RecyclerView.LayoutManager
+
     private lateinit var mQuestsQueryListener: ChildEventListener
+    private lateinit var mTimeToNewQuestListener: ValueEventListener
+
+    private var isQuestsFilled = false
+
+    private var mTimer: Handler? = null
 
     private var questList: ArrayList<Quest> = arrayListOf()
 
@@ -47,7 +55,7 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
         this.mCallback = callback
     }
 
-    fun clearCallback() {
+    private fun clearCallback() {
         if (this.mCallback != null) {
             this.mCallback = null
         }
@@ -60,7 +68,9 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mQuestsQueryListener = getQuestQueryListener()
+        mTimeToNewQuestListener = getOnTimeToNewQuestListener()
         FireBaseDataBaseWorker.setQuestsListener(mQuestsQueryListener)
+        FireBaseDataBaseWorker.setLastCompletedQuestListener(mTimeToNewQuestListener)
 
         mQuestsCountLabel = view.findViewById(R.id.fragment_quests_quests_amount)
         mTimeToNewQuestLabel = view.findViewById(R.id.fragment_quests_time_to_new_quest)
@@ -68,7 +78,6 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
         mQuestsRecyclerLayoutManager = LinearLayoutManager(context)
         mQuestsRecyclerAdapter = QuestsAdapter(questList)
         mQuestsRecyclerAdapter.setCallback(this)
-        FireBaseDataBaseWorker.setLastCompletedQuestListener(getQuestQueryListener())
         setQuestsCount(mQuestsRecyclerAdapter.itemCount)
 
         mQuestsRecycler.apply {
@@ -88,6 +97,13 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
 
     override fun onItemsCountChange(newCount: Int) {
         setQuestsCount(newCount)
+
+        if (newCount == CommonConstants.MAXIMUM_QUESTS_FOR_USER) {
+            isQuestsFilled = true
+            stopQuestsTimerAndSetLabel()
+        } else {
+            isQuestsFilled = false
+        }
     }
 
     override fun onDestroy() {
@@ -102,14 +118,29 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
         return object : ChildEventListener {
             override fun onChildMoved(dataSnapshot: DataSnapshot, key: String?) {}
             override fun onChildChanged(dataSnapshot: DataSnapshot, key: String?) {
-                Log.d("dbg", dataSnapshot.value.toString())
+
             }
+
             override fun onChildAdded(dataSnapshot: DataSnapshot, key: String?) {
-                Log.d("dbg", dataSnapshot.value.toString())
+                if (dataSnapshot.exists()) {
+                    mQuestsRecyclerAdapter.addItem(
+                        Quest(
+                            dataSnapshot.key!!,
+                            dataSnapshot.value.toString().toInt()
+                        )
+                    )
+                }
             }
 
             override fun onChildRemoved(dataSnapshot: DataSnapshot) {
-                Log.d("dbg", dataSnapshot.value.toString())
+                if (dataSnapshot.exists()) {
+                    mQuestsRecyclerAdapter.removeItem(
+                        Quest(
+                            dataSnapshot.key!!,
+                            dataSnapshot.value.toString().toInt()
+                        )
+                    )
+                }
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -118,42 +149,76 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
         }
     }
 
-    private fun setQuestsCount(count: Int){
-        mQuestsCountLabel.text = resources.getString(R.string.fragment_quests_available_quests, count, CommonConstants.MAXIMUM_QUESTS_FOR_USER)
+    private fun setQuestsCount(count: Int) {
+        mQuestsCountLabel.text = resources.getString(
+            R.string.fragment_quests_available_quests,
+            count,
+            CommonConstants.MAXIMUM_QUESTS_FOR_USER
+        )
     }
 
-    private fun getOnTimeToNewQuestListener(): ChildEventListener {
-        return object : ChildEventListener {
-            override fun onChildMoved(dataSnapshot: DataSnapshot, p1: String?) {}
+    private fun getOnTimeToNewQuestListener(): ValueEventListener {
+        return object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val lastRequestQuestDate = dataSnapshot.value as Long
+                val minutesBetweenDates = CommonUtils.getMinutesBetweenDates(Date().time, lastRequestQuestDate)
+                val questsToRequest = minutesBetweenDates / 60
 
-            override fun onChildChanged(dataSnapshot: DataSnapshot, p1: String?) {
+                if (questsToRequest > 0) {
+                    FireBaseDataBaseWorker.requestQuest(questsToRequest.toInt())
+                }
 
-            }
-
-            override fun onChildAdded(dataSnapshot: DataSnapshot, p1: String?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
-
-            override fun onChildRemoved(dataSnapshot: DataSnapshot) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                if (!isQuestsFilled) {
+                    runQuestTimeHandler(dataSnapshot.value.toString().toLong())
+                }
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                Log.e(FireBaseDataBaseWorker.TAG, "${databaseError.message} setLastCompletedQuestListener")
+                Log.e(TAG, "${databaseError.message} getOnTimeToNewQuestListener")
             }
         }
     }
 
-    private fun runQuestTimeHandler(){
-        val handler = Handler()
+    private fun runQuestTimeHandler(lastQuestDate: Long) {
+        mTimer = Handler()
         val delay = 1000L //milliseconds
 
-        handler.postDelayed(object : Runnable {
+        mTimer!!.postDelayed(object : Runnable {
+            var dateToSubtract = Date().time - lastQuestDate
+
             override fun run() {
+                val seconds = dateToSubtract / 1000
+                val minutes = seconds / 60 % 60
+                val hours = minutes / 60 % 60
 
+                dateToSubtract -= 1000
+                setDateToQuest(hours, minutes, seconds % 60)
 
-                handler.postDelayed(this, delay)
+                if (dateToSubtract <= 0){
+                    FireBaseDataBaseWorker.requestQuest(1)
+                }
+
+                mTimer!!.postDelayed(this, delay)
             }
         }, delay)
+    }
+
+    private fun setDateToQuest(hours: Long, minutes: Long, seconds: Long) {
+        mTimeToNewQuestLabel.text =
+                resources.getString(
+                    R.string.fragment_quests_time_to_new_quest,
+                    hours,
+                    minutes,
+                    seconds
+                )
+    }
+
+    private fun stopQuestsTimerAndSetLabel() {
+        if (mTimer != null) {
+            mTimer!!.looper.quit()
+            mTimer = null
+        }
+
+        mTimeToNewQuestLabel.text = getString(R.string.fragment_quests_you_have_max_quests)
     }
 }
