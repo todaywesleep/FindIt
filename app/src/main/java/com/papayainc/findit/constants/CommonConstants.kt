@@ -14,5 +14,8 @@ class CommonConstants {
                 + "([a-zA-Z]+[\\w-]+\\.)+[a-zA-Z]{2,4})$")
 
         const val TIME_FORMAT = "hh:mm:ss"
+        const val TIME_SECOND = 1000L
+        const val TIME_MINUTE = TIME_SECOND * 60
+        const val TIME_HOUR = TIME_MINUTE * 60
     }
 }

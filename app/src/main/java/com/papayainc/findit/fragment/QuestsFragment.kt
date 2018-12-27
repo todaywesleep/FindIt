@@ -48,6 +48,7 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
     private var isQuestsFilled = false
 
     private var mTimer: Handler? = null
+    private var mTimerTask: Runnable? = null
 
     private var questList: ArrayList<Quest> = arrayListOf()
 
@@ -180,11 +181,11 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
     }
 
     private fun runQuestTimeHandler(lastQuestDate: Long) {
-        mTimer = Handler()
         val delay = 1000L //milliseconds
 
-        mTimer!!.postDelayed(object : Runnable {
-            var dateToSubtract = Date().time - lastQuestDate
+        mTimer = Handler()
+        mTimerTask = object : Runnable {
+            var dateToSubtract = CommonConstants.TIME_HOUR - (Date().time - lastQuestDate)
 
             override fun run() {
                 val seconds = dateToSubtract / 1000
@@ -200,7 +201,9 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
 
                 mTimer!!.postDelayed(this, delay)
             }
-        }, delay)
+        }
+
+        mTimer!!.postDelayed(mTimerTask, delay)
     }
 
     private fun setDateToQuest(hours: Long, minutes: Long, seconds: Long) {
@@ -215,7 +218,7 @@ class QuestsFragment : Fragment(), View.OnClickListener, QuestsAdapter.Callback 
 
     private fun stopQuestsTimerAndSetLabel() {
         if (mTimer != null) {
-            mTimer!!.looper.quit()
+            mTimer!!.removeCallbacks(mTimerTask)
             mTimer = null
         }
 
