@@ -18,7 +18,6 @@ class AuthUtils {
         init {
             authObj.addAuthStateListener { auth ->
                 if (auth.currentUser == null){
-                    FireBaseDataBaseWorker.createUserWrite(auth.currentUser!!)
                     mCallback!!.isLoginSuccessful(false, null)
                 }else{
                     if (mCallback != null){

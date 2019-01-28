@@ -2,8 +2,6 @@ package com.papayainc.findit.fragment
 
 import android.Manifest
 import android.app.Activity
-import android.app.AlertDialog
-import android.app.Dialog
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Matrix
@@ -16,7 +14,6 @@ import android.widget.Button
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import com.papayainc.findit.R
 import com.papayainc.findit.model.ScanResult
@@ -113,7 +110,7 @@ class CameraFragment : Fragment(), ActivityCompat.OnRequestPermissionsResultCall
     override fun onResume() {
         super.onResume()
         try {
-            if (!isConfigured){
+            if (!isConfigured) {
                 configureInstances()
             }
             mFotoapparat.start()

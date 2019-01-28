@@ -36,13 +36,13 @@ class ImageProcessor {
             isDetectorBusy = true
             val firebaseImage = FirebaseVisionImage.fromBitmap(bitmap)
 
-            detector.detectInImage(firebaseImage).addOnSuccessListener { it ->
+            detector.detectInImage(firebaseImage).addOnSuccessListener { cloudLabel ->
                 val scanResult = arrayListOf<ScanResult>()
                 val labelsCollection = hashMapOf<String, String>()
 
-                it.forEach {
-                    scanResult.add(ScanResult(it.label, it.confidence))
-                    labelsCollection[it.label] = it.label
+                cloudLabel.forEach {
+                    scanResult.add(ScanResult(it.label.toLowerCase(), it.confidence))
+                    labelsCollection[it.label.toLowerCase()] = it.label.toLowerCase()
                 }
 
                 FireBaseDataBaseWorker.writeLabels(labelsCollection)

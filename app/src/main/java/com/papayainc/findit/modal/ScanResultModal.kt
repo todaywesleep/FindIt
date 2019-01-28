@@ -35,26 +35,32 @@ class ScanResultModal(context: Context) : BaseModal(context) {
 
     private fun bindListeners() {
         this.dismissButton.setOnClickListener {
-            clearModalData()
             dismiss()
+        }
+
+        setOnDismissListener {
+            clearModalData()
         }
     }
 
     @SuppressLint("SetTextI18n")
-    fun setScanResult(image: Bitmap, scanResult: ArrayList<ScanResult>){
+    fun setScanResult(image: Bitmap, scanResult: ArrayList<ScanResult>) {
         takenImage.setImageBitmap(image)
-
-        FireBaseDataBaseWorker.getCompletedQuest(scanResult.map {
+        val completedQuestsLabels = scanResult.map {
             it.label
-        } as ArrayList<String>, object : FireBaseDataBaseWorker.Companion.IsQuestCompletedCallback {
-            override fun isQuestCompleted(isCompleted: Boolean, quests: ArrayList<Quest>?) {
-                Log.d("dbg", isCompleted.toString())
+        } as ArrayList<String>
 
-                quests?.forEach {
-                    Log.d("dbg", it.item_to_search)
+        FireBaseDataBaseWorker.getCompletedQuest(
+            completedQuestsLabels,
+            object : FireBaseDataBaseWorker.Companion.IsQuestCompletedCallback {
+                override fun isQuestCompleted(isCompleted: Boolean, quests: ArrayList<Quest>?) {
+                    Log.d("dbg", isCompleted.toString())
+                    
+                    quests?.forEach {
+                        Log.d("dbg", it.item_to_search)
+                    }
                 }
-            }
-        })
+            })
 
         scanResult.forEach { item ->
             val textView = TextView(context)
@@ -63,7 +69,7 @@ class ScanResultModal(context: Context) : BaseModal(context) {
         }
     }
 
-    private fun clearModalData(){
+    private fun clearModalData() {
         takenImage.setImageResource(0)
         contentContainer.removeAllViews()
     }
